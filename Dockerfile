@@ -1,15 +1,15 @@
 FROM node:20.14.0-alpine
 
-RUN apk add --no-cache git
-
 WORKDIR /usr/src/ec_prayer_times_app
 
-RUN git clone https://github.com/AbdulrahmanHadz/ec_prayer_times.git .
+COPY package.json ./
 
 RUN npm install
 
-RUN npm build
+COPY . .
 
-EXPOSE 5164
+RUN npm run build
+
+EXPOSE 3000
 
 CMD [ "node", ".output/server/index.mjs" ]
