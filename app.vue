@@ -1,0 +1,76 @@
+<template>
+  <div>
+    <div class="container">
+      <HomePage />
+    </div>
+  </div>
+</template>
+
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  font-family: 'Vazirmatn', Helvetica, sans-serif;
+}
+
+img {
+  display: block;
+}
+
+.container {
+  min-height: 100%;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto
+}
+
+@media (min-width: 1280px) {
+  .container {
+    width: 70vh;
+  }
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('@/assets/fonts/Vazirmatn.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: 'Gilroy';
+  src: url('@/assets/fonts/Gilroy Regular.ttf') format("truetype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Gilroy';
+  src: url('@/assets/fonts/Gilroy Medium.ttf') format("truetype");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'Gilroy';
+  src: url('@/assets/fonts/Gilroy SemiBold.ttf') format("truetype");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'Gilroy';
+  src: url('@/assets/fonts/Gilroy Bold.ttf') format("truetype");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'Gilroy';
+  src: url('@/assets/fonts/Gilroy ExtraBold.ttf') format("truetype");
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: 'Gilroy';
+  src: url('@/assets/fonts/Gilroy Heavy.ttf') format("truetype");
+  font-weight: 900;
+}
+</style>

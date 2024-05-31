@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  ec_prayer_times-app:
+    image: abdulrahmanhadz/ec_prayer_times:latest
+    ports:
+      - "5164:5164"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
