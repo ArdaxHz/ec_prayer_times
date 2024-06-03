@@ -39,9 +39,10 @@ onMounted(() => {
     </div>
 </template>
 
-<style>
+<style scoped>
 .typeface-design-container {
-    transform: translate(0, 13rem);
+    transform: translate(0, 18rem);
+    width: 100%;
 }
 
 .formatted-location-container {
@@ -55,6 +56,11 @@ onMounted(() => {
     justify-content: center;
     align-items: center;
 
+    text-wrap: nowrap;
+    word-break: break-all;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .center-location-container {
@@ -65,6 +71,75 @@ onMounted(() => {
     align-items: center;
 }
 
+.large-city {
+    font-family: 'Gilroy';
+    font-size: 5rem;
+    line-height: 1.2;
+    font-weight: 800;
+    color: white;
+    text-align: center;
+    width: min-content;
+    position: absolute;
+    left: -250px;
+    overflow: hidden;
+    opacity: 0.05;
+    transform: translate(0, -50%);
+}
+
+.area {
+    width: 900px;
+
+    font-family: 'Gilroy';
+    text-transform: uppercase;
+    font-size: 3.6rem;
+    line-height: 0.9;
+    font-weight: 900;
+    color: white;
+    overflow: hidden;
+    margin-inline: auto;
+    text-align: center;
+    justify-content: center;
+    letter-spacing: 0.2rem;
+
+    text-overflow: ellipsis;
+}
+
+.country {
+    font-family: 'Gilroy';
+    font-size: 1.5rem;
+    line-height: 1.3;
+    font-weight: 400;
+    color: white;
+    overflow: hidden;
+    margin-inline: auto;
+    text-align: center;
+    justify-content: center;
+}
+
+.months {
+    padding-top: 10px;
+    display: flex;
+    flex-direction: row;
+    font-family: 'Gilroy';
+    font-size: 2.8rem;
+    line-height: 1;
+    font-weight: 300;
+    color: white;
+    overflow: hidden;
+    margin-inline: auto;
+    text-align: center;
+    justify-content: center;
+    font-stretch: expanded;
+    color: #FEC04A;
+}
+
+.hijri-month-display {
+    display: flex;
+    flex-direction: row;
+}
+</style>
+
+<style>
 .prayer-times-table-container {
     width: 100%;
     justify-content: center;
@@ -84,7 +159,7 @@ onMounted(() => {
 tbody:before {
     content: "@";
     display: block;
-    line-height: 15px;
+    line-height: 7px;
     text-indent: -99999px;
 }
 
@@ -99,7 +174,7 @@ thead {
     padding-block: 1.5rem;
     padding-inline: 1rem;
     font-weight: 900;
-    font-size: 1.4rem;
+    font-size: 2.2rem;
     text-transform: uppercase;
     color: #011631;
     margin-bottom: 1rem;
@@ -124,7 +199,10 @@ thead {
     padding-block: 0.25rem;
     padding-inline: 0.375rem;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 1.7rem;
+    line-height: 2.2rem;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .prayer-times-table tr:nth-child(even) {
@@ -133,68 +211,5 @@ thead {
 
 .prayer-times-table tr:nth-child(odd) {
     background-color: rgba(0, 0, 0, 0.1);
-}
-
-.large-city {
-    font-family: 'Gilroy';
-    font-size: 5rem;
-    line-height: 1.2;
-    font-weight: 800;
-    color: white;
-    text-align: center;
-    width: min-content;
-    position: absolute;
-    left: -250px;
-    overflow: hidden;
-    opacity: 0.05;
-    transform: translate(0, -50%);
-}
-
-.area {
-    font-family: 'Gilroy';
-    text-transform: uppercase;
-    font-size: 3rem;
-    line-height: 1.1;
-    font-weight: 900;
-    color: white;
-    overflow: hidden;
-    margin-inline: auto;
-    text-align: center;
-    justify-content: center;
-    letter-spacing: 0.2rem;
-}
-
-.country {
-    font-family: 'Gilroy';
-    font-size: 2.5rem;
-    line-height: 1.3;
-    font-weight: 400;
-    color: white;
-    overflow: hidden;
-    margin-inline: auto;
-    text-align: center;
-    justify-content: center;
-}
-
-.months {
-    padding-top: 10px;
-    display: flex;
-    flex-direction: row;
-    font-family: 'Gilroy';
-    font-size: 2rem;
-    line-height: 1;
-    font-weight: 300;
-    color: white;
-    overflow: hidden;
-    margin-inline: auto;
-    text-align: center;
-    justify-content: center;
-    font-stretch: expanded;
-    color: #FEC04A;
-}
-
-.hijri-month-display {
-    display: flex;
-    flex-direction: row;
 }
 </style>

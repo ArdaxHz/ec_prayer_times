@@ -18,6 +18,7 @@ function getCurrentLocation() {
             fetchCoordsLocation(latitude.value, longitude.value)
                 .then((data) => {
                     locationNames.value = getCurrentLocationNames(data)
+                    console.log(locationNames.value)
                     emitLocation()
                 })
                 .catch((error) => {
@@ -25,7 +26,13 @@ function getCurrentLocation() {
                     emitLocation()
                 })
 
-        })
+        },
+            (error) => {
+                console.log(error)
+                emitLocation()
+            },
+            { enableHighAccuracy: true }
+        )
     } else {
         emitLocation()
     }
@@ -38,10 +45,14 @@ function emitLocation() {
         location: locationNames.value
     })
 }
+
+onMounted(() => {
+    getCurrentLocation()
+})
 </script>
 
 <template>
     <div>
-        <button @click="getCurrentLocation" class="buttons auto-locate-button">Auto-Locate</button>
+        <button @click="getCurrentLocation" class="buttons auto-locate-button">Locate</button>
     </div>
 </template>

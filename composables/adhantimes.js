@@ -33,6 +33,20 @@ const HijriMonths = {
     ]
 }
 
+function checkTimeWithinRange(dateCheckedAgainst, dateToCheck, timeDifferenceToCheck) {
+    const dateCheckedAgainstLowerBound = new Date(dateCheckedAgainst.getTime() - timeDifferenceToCheck * 60 * 1000);
+    const dateCheckedAgainstUpperBound = new Date(dateCheckedAgainst.getTime() + timeDifferenceToCheck * 60 * 1000);
+    const dateCheckedAgainstLowerBoundHours = dateCheckedAgainstLowerBound.getHours();
+    const dateCheckedAgainstLowerBoundMinutes = dateCheckedAgainstLowerBound.getMinutes();
+    const dateCheckedAgainstUpperBoundHours = dateCheckedAgainstUpperBound.getHours();
+    const dateCheckedAgainstUpperBoundMinutes = dateCheckedAgainstUpperBound.getMinutes();
+
+    const dateToCheckHours = dateToCheck.getHours();
+    const dateToCheckMinutes = dateToCheck.getMinutes();
+    const inRange = (dateCheckedAgainstLowerBoundHours < dateToCheckHours || dateCheckedAgainstLowerBoundHours == dateToCheckHours && dateCheckedAgainstLowerBoundMinutes <= dateToCheckMinutes) && (dateToCheckHours < dateCheckedAgainstUpperBoundHours || dateToCheckHours == dateCheckedAgainstUpperBoundHours && dateToCheckMinutes <= dateCheckedAgainstUpperBoundMinutes);
+    return inRange
+}
+
 export function convertToHijri(date) {
     const hijriDate = new HijrahDate(date);
     return { "date": hijriDate, "month_long": HijriMonths.STANDALONEMONTH[hijriDate._monthOfYear - 1], "month_short": HijriMonths.SHORTMONTH[hijriDate._monthOfYear - 1] };
@@ -46,6 +60,10 @@ export function calculateAdhanTimesDay(latitude, longitude, date, customParams) 
     paramsToUse.madhab = customParams['madhab'] ? customParams['madhab'] : 'shafi';
 
     const prayerTimes = new PrayerTimes(coordinates, date, paramsToUse);
+    if (checkTimeWithinRange(prayerTimes.fajr, prayerTimes.isha, 5)) {
+        const newIshaTime = new Date(prayerTimes.maghrib.getTime() + 60 * 60 * 1000);
+        prayerTimes.isha = newIshaTime;
+    }
 
     const formattedDate = moment(date).tz("Europe/London").format('YYYY-MM-DD');
     const day = {}

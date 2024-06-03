@@ -23,7 +23,7 @@ function chooseTemplate(swiper) {
 
 <template>
     <div class="template-chooser-container">
-        <h1>Choose your background design:</h1>
+        <h1>Choose your design:</h1>
         <div class="template-images-container">
             <Swiper class="swiper-cards" :modules="[SwiperAutoplay, SwiperEffectCards]" :slides-per-view="1"
                 :loop="false" :effect="'cards'" @activeIndexChange="chooseTemplate" @init="chooseTemplate">

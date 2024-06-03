@@ -8,7 +8,6 @@ const props = defineProps({
 
 const emits = defineEmits(['prayer-room-update'])
 
-
 const fajrAngle = ref(18);
 const sightingCommittee = ref('MuslimWorldLeague');
 const asrTime = ref('shafi');
@@ -31,7 +30,21 @@ function calculateToday() {
     emits('prayer-room-update', prayerTimes)
 }
 
+function autoCalculate() {
+    calculateMonth()
+}
 
+watch(() => props.latitude, () => {
+    autoCalculate()
+})
+
+onMounted(() => {
+    console.log("FORM MOUNTED")
+    if (props.latitude && props.longitude) {
+        console.log("FORM MOUNTED WITH LOCATION")
+        autoCalculate()
+    }
+})
 </script>
 
 <template>
@@ -74,16 +87,20 @@ function calculateToday() {
         </div>
 
         <div class="button-group">
-            <button type="submit" class="buttons" :disabled="isLocationEmpty" @click.prevent="calculateToday">Calculate
-                Today</button>
+            <!-- <button type="submit" class="buttons" :disabled="isLocationEmpty" @click.prevent="calculateToday">Calculate
+                Today</button> -->
             <button type="submit" class="buttons" :disabled="isLocationEmpty" @click.prevent="calculateMonth">Calculate
-                Whole Month</button>
+                Month</button>
         </div>
     </form>
 </template>
 
 
 <style>
+#sightingCommittee {
+    border-radius: 5px;
+}
+
 .form-container {
     display: flex;
     flex-direction: column;
@@ -151,5 +168,9 @@ function calculateToday() {
 .button-group button:disabled {
     cursor: not-allowed;
     pointer-events: none;
+}
+
+.button-group button[type="submit"] {
+    width: 100%;
 }
 </style>../composables/adhantimes

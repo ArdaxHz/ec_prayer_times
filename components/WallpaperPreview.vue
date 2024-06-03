@@ -6,7 +6,7 @@ const phoneRef = ref(null);
 
 const props = defineProps({
     location: Object,
-    templateChosenUrl: Object,
+    templateChosen: Object,
     prayerTimes: Object,
     scaleFactor: Number,
     gregorianDate: Object,
@@ -23,7 +23,7 @@ watch(() => props.scaleFactor, (newValue, _) => {
 <template>
     <div class="preview-container" ref="previewContainer">
         <div class="scaled-component" ref="scaledWallpaperComponent">
-            <WallpaperOutput :location="location" :templateChosenUrl="templateChosenUrl" :prayerTimes="prayerTimes"
+            <WallpaperOutput :location="location" :templateChosen="templateChosen" :prayerTimes="prayerTimes"
                 :gregorianDate="gregorianDate" :hijriDate="hijriDate" />
         </div>
     </div>

@@ -21,7 +21,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div>
+    <div class="typeface-design-container">
         <h1 class="large-city">{{ props.location.city }}</h1>
         <div class="formatted-location-container">
             <div class="center-location-container">
@@ -40,7 +40,11 @@ onMounted(() => {
     </div>
 </template>
 
-<style>
+<style scoped>
+.typeface-design-container {
+    transform: translate(0, 13rem)
+}
+
 .formatted-location-container {
     display: flex;
     position: relative;
@@ -60,55 +64,6 @@ onMounted(() => {
     width: inherit;
     justify-content: center;
     align-items: center;
-}
-
-.prayer-times-table-container {
-    display: flex;
-    width: inherit;
-}
-
-.prayer-times-table {
-    border-spacing: 0 5px;
-    color: white;
-    margin: auto;
-    text-align: center;
-    z-index: 5;
-}
-
-.prayer-times-table-header-row {
-    background-color: #f05e31;
-
-}
-
-.prayer-times-table-header-row th:first-child {
-    border-top-left-radius: 1rem;
-    border-bottom-left-radius: 1rem;
-}
-
-.prayer-times-table-header-row th:last-child {
-    border-top-right-radius: 1rem;
-    border-bottom-right-radius: 1rem;
-}
-
-.prayer-times-table tr {
-    padding-bottom: 1rem;
-}
-
-.prayer-times-table th {
-    font-family: 'Gilroy';
-    font-weight: 800;
-    font-size: 1.5rem;
-    line-height: 1.75rem;
-
-    padding-inline: 24px;
-    padding-block: 15px;
-    text-align: center;
-}
-
-.prayer-times-table td {
-    font-family: 'Gilroy';
-    font-weight: 700;
-    font-size: 1.2rem;
 }
 
 .large-city {
@@ -169,5 +124,56 @@ onMounted(() => {
 .hijri-month-display {
     display: flex;
     flex-direction: row;
+}
+</style>
+
+<style>
+.prayer-times-table-container {
+    display: flex;
+    width: inherit;
+}
+
+.prayer-times-table {
+    border-spacing: 0 5px;
+    color: white;
+    margin: auto;
+    text-align: center;
+    z-index: 5;
+}
+
+.prayer-times-table-header-row {
+    background-color: #f05e31;
+
+}
+
+.prayer-times-table-header-row th:first-child {
+    border-top-left-radius: 1rem;
+    border-bottom-left-radius: 1rem;
+}
+
+.prayer-times-table-header-row th:last-child {
+    border-top-right-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+}
+
+.prayer-times-table tr {
+    padding-bottom: 1rem;
+}
+
+.prayer-times-table th {
+    font-family: 'Gilroy';
+    font-weight: 800;
+    font-size: 1.5rem;
+    line-height: 1.75rem;
+
+    padding-inline: 24px;
+    padding-block: 15px;
+    text-align: center;
+}
+
+.prayer-times-table td {
+    font-family: 'Gilroy';
+    font-weight: 700;
+    font-size: 1.2rem;
 }
 </style>

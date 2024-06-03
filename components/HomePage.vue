@@ -7,7 +7,7 @@ const location = ref(null);
 const prayerTimes = ref(null);
 const wallpaperRef = ref(null);
 const wallpaperContainerRef = ref(null);
-const templateChosenUrl = ref(null);
+const templateChosen = ref(null);
 const gregorianDate = ref(null);
 const hijriDate = ref(null);
 
@@ -31,7 +31,7 @@ watch(() => prayerTimes.value, (newValue, _) => {
 });
 
 const wallpaperName = computed(() => {
-    return location.value ? `${location.value.city}-${location.value.country}_${moment(gregorianDate.value).format('MM-YY')}_prayer-timetable`.toLowerCase() : 'ec-prayer-timetable';
+    return location.value ? `${location.value.area}-${location.value.country}_${moment(gregorianDate.value).format('MM-YY')}_prayer-timetable`.toLowerCase() : 'ec-prayer-timetable';
 });
 
 function updatePrayerTimes(prayer) {
@@ -42,7 +42,7 @@ function updateLocation(locationObj) {
     latitude.value = locationObj.latitude;
     longitude.value = locationObj.longitude;
     location.value = locationObj.location;
-    console.log(location);
+    console.log(location.value);
 }
 
 function updateWallpaperRef(ref) {
@@ -55,7 +55,7 @@ function updateWallpaperContainerRef(ref) {
 }
 
 function updateTemplateChosen(template) {
-    templateChosenUrl.value = template;
+    templateChosen.value = template;
 }
 
 onMounted(() => {
@@ -67,7 +67,7 @@ onMounted(() => {
 <template>
     <div class="container-page">
         <WallpaperOutput :location="location" @updateWallpaperRef="updateWallpaperRef"
-            @updateWallpaperContainerRef="updateWallpaperContainerRef" :templateChosenUrl="templateChosenUrl"
+            @updateWallpaperContainerRef="updateWallpaperContainerRef" :templateChosen="templateChosen"
             :prayerTimes="prayerTimes" :gregorianDate="gregorianDate" :hijriDate="hijriDate"
             class="home-wallpaper-fullscreen" />
 
@@ -90,7 +90,7 @@ onMounted(() => {
             <div class="phone">
                 <img ref="phoneImageRef" class="phone-image" src="../assets/phone.png" alt="phone" />
                 <WallpaperPreview ref="SmallerWallpaperDesignedRef" class="small-wallpaper-image" :location="location"
-                    :templateChosenUrl="templateChosenUrl" :prayerTimes="prayerTimes" :scaleFactor="previewScaleFactor"
+                    :templateChosen="templateChosen" :prayerTimes="prayerTimes" :scaleFactor="previewScaleFactor"
                     :gregorianDate="gregorianDate" :hijriDate="hijriDate" />
             </div>
 
@@ -104,7 +104,7 @@ onMounted(() => {
 }
 
 .container-page {
-    padding-inline: 40px;
+    padding-inline: 8rem;
     padding-block: 30px;
     display: flex;
     flex-direction: column;
@@ -112,7 +112,7 @@ onMounted(() => {
     align-items: center;
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1000px) {
     .container-page {
         align-items: start;
         flex-direction: row;

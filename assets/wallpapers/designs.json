@@ -1,7 +1,4 @@
 [
-    {"preview": "wallpaper.png", "template": "wallpaper.png", "typeface": "WallpapersDesignsWhiteTextYellowTableDesign"},
-    {"preview": "wallpaper2.png", "template": "wallpaper2.png", "typeface": "WallpapersDesignsWhiteTextYellowTableDesign"},
-    {"preview": "wallpaper3.png", "template": "wallpaper3.png", "typeface": "WallpapersDesignsWhiteTextYellowTableDesign"},
-    {"preview": "wallpaper4.png", "template": "wallpaper4.png", "typeface": "WallpapersDesignsWhiteTextYellowTableDesign"},
-    {"preview": "wallpaper5.png", "template": "wallpaper5.png", "typeface": "WallpapersDesignsWhiteTextYellowTableDesign"}
+    {"preview": "wallpaper.jpg", "template": "wallpaper.jpg", "typeface": "WallpapersDesignsWhiteTextYellowTableDesign"},
+    {"preview": "wallpaper2.jpg", "template": "wallpaper2.jpg", "typeface": "WallpapersDesignsWhiteTextYellowTableDesign"}
 ]

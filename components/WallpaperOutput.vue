@@ -12,11 +12,11 @@ const gregorianYear = ref(null);
 const hijriMonthShort = ref(null);
 const hijriMonthLong = ref(null);
 const hijriYear = ref(null);
-const location = ref({ city: 'Your City', area: 'Your Area', country: 'Your Country' });
+const location = ref({ city: null, area: null, country: null });
 
 const props = defineProps({
     location: Object,
-    templateChosenUrl: Object,
+    templateChosen: Object,
     prayerTimes: Object,
     gregorianDate: Object,
     hijriDate: Object
@@ -24,7 +24,7 @@ const props = defineProps({
 
 const emits = defineEmits(['updateWallpaperContainerRef', 'updateWallpaperRef']);
 
-watch(() => props.templateChosenUrl, (newValue, _) => {
+watch(() => props.templateChosen, (newValue, _) => {
     if (newValue) {
         templateChosen.value = Object.assign(templateChosen.value, newValue)
     }
@@ -64,9 +64,12 @@ function handleImageLoad(ref) {
 
 function scaleText(width) {
     const containerWidth = width;
-    const scaleFactor = containerWidth / 950;
+    const scaleFactor = containerWidth / 1297;
 
-    wallpaperText.value.style.transform = `scale(${(scaleFactor > 0 ? scaleFactor : 1) + 0.1})`;
+    console.log(width);
+    console.log(scaleFactor);
+
+    wallpaperText.value.style.transform = `scale(${(scaleFactor > 0 ? scaleFactor : 1)})`;
 };
 
 
@@ -80,6 +83,10 @@ function scaleText(width) {
                     <WallpapersDesignsWhiteTextYellowTableDesign :key="location" :location="location"
                         :prayerTimes="props.prayerTimes" :gregorianMonth="gregorianMonth" :gregorianYear="gregorianYear"
                         :hijriMonthShort="hijriMonthShort" :hijriYear="hijriYear" :hijriMonthLong="hijriMonthLong" />
+                    <!-- <WallpapersSwitchCorrectWallpaperDesign :typeface="templateChosen.typeface" :key="location"
+                        :location="location" :prayerTimes="props.prayerTimes" :gregorianMonth="gregorianMonth"
+                        :gregorianYear="gregorianYear" :hijriMonthShort="hijriMonthShort" :hijriYear="hijriYear"
+                        :hijriMonthLong="hijriMonthLong" /> -->
                 </div>
                 <img class="wallpaper-image" :src="templateChosen.template" alt="wallpaper" ref="wallpaperImage"
                     :key="templateChosen" @load="handleImageLoad" />
