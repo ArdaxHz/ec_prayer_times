@@ -1,10 +1,23 @@
+<script setup>
+const rootContainer = ref(null);
+const windowWidth = ref(0);
+const windowHeight = ref(0);
+
+useResizeObserver(rootContainer, (entries) => {
+  const entry = entries[0];
+  const { width, height } = entry.contentRect;
+  windowWidth.value = width;
+  windowHeight.value = height;
+});
+</script>
+
 <template>
-  <div>
+  <div ref="rootContainer">
     <NuxtNotifications position="bottom left" :speed="500" />
     <div class="container">
-      <HomePage />
+      <HomePage :windowWidth="windowWidth" :windowHeight="windowHeight" />
     </div>
-    <p class="versioning">v0.0.3</p>
+    <p class="versioning">v0.0.4</p>
   </div>
 </template>
 
@@ -26,8 +39,8 @@ img {
   right: 0;
   margin-left: auto;
   margin-right: auto;
-  padding-inline: 2rem;
-  padding-block: 2rem;
+  padding-inline: 4rem;
+  padding-block: 3rem;
 }
 
 .versioning {

@@ -1,6 +1,5 @@
 <script setup>
 import moment from 'moment';
-
 const latitude = ref(null);
 const longitude = ref(null);
 const location = ref(null);
@@ -11,11 +10,17 @@ const templateChosen = ref(null);
 const gregorianDate = ref(null);
 const hijriDate = ref(null);
 
+const phoneContainerRef = ref(null);
 const phoneImageRef = ref(null);
 const phoneImageWidth = ref(0);
 const phoneImageHeight = ref(0);
 const previewScaleFactor = ref(0.337);
 const SmallerWallpaperDesignedRef = ref(null);
+
+const props = defineProps({
+    windowWidth: Number,
+    windowHeight: Number
+});
 
 watch(() => prayerTimes.value, (newValue, _) => {
     const today = moment().format('YYYY-MM-DD');
@@ -58,9 +63,29 @@ function updateTemplateChosen(template) {
     templateChosen.value = template;
 }
 
+function changeBorderRadius() {
+    const borderRadius = phoneImageHeight.value / 10.4285714;
+
+    phoneContainerRef.value.style.borderRadius = `${borderRadius}px`;
+    phoneContainerRef.value.style.MozBorderRadius = `${borderRadius}px`;
+}
+
+watch(() => phoneImageWidth.value, (newValue, _) => {
+    if (!wallpaperContainerRef.value) return;
+    previewScaleFactor.value = phoneImageWidth.value / wallpaperContainerRef.value.offsetWidth;
+    changeBorderRadius();
+});
+
 onMounted(() => {
-    phoneImageWidth.value = phoneImageRef.value.offsetWidth;
-    phoneImageHeight.value = phoneImageRef.value.offsetHeight;
+    phoneImageWidth.value = phoneImageRef.value.clientWidth;
+    phoneImageHeight.value = phoneImageRef.value.clientHeight;
+    changeBorderRadius();
+});
+
+watch(() => props.windowWidth, (newValue, _) => {
+    phoneImageWidth.value = phoneImageRef.value.clientWidth;
+    phoneImageHeight.value = phoneImageRef.value.clientHeight;
+    changeBorderRadius();
 });
 </script>
 
@@ -86,11 +111,11 @@ onMounted(() => {
             </client-only>
         </div>
         <div class="right-container">
-            <div class="phone">
+            <div class="phone" ref="phoneContainerRef">
                 <img ref="phoneImageRef" class="phone-image" src="../assets/phone.png" alt="phone" />
                 <WallpaperPreview ref="SmallerWallpaperDesignedRef" class="small-wallpaper-image" :location="location"
                     :templateChosen="templateChosen" :prayerTimes="prayerTimes" :scaleFactor="previewScaleFactor"
-                    :gregorianDate="gregorianDate" :hijriDate="hijriDate" />
+                    :gregorianDate="gregorianDate" :hijriDate="hijriDate" :phoneImageHeight="phoneImageHeight" />
             </div>
 
         </div>
@@ -103,12 +128,11 @@ onMounted(() => {
 }
 
 .container-page {
-    padding-inline: 8rem;
-    padding-block: 30px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    gap: 5rem;
 }
 
 @media (min-width: 1000px) {

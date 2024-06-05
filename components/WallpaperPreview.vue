@@ -10,12 +10,19 @@ const props = defineProps({
     prayerTimes: Object,
     scaleFactor: Number,
     gregorianDate: Object,
-    hijriDate: Object
+    hijriDate: Object,
+    phoneImageHeight: Number,
 });
 
 watch(() => props.scaleFactor, (newValue, _) => {
     if (newValue) {
         scaledWallpaperComponent.value.style.transform = `scale(${newValue})`;
+    }
+});
+
+watch(() => props.phoneImageHeight, (newValue, _) => {
+    if (newValue) {
+        previewContainer.value.style.height = `${newValue}px`;
     }
 });
 </script>

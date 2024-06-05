@@ -66,8 +66,8 @@ function chooseTemplate(swiper) {
 }
 
 .swiper-cards {
-    width: 250px;
-    height: 250px;
+    width: 150px;
+    /* height: 250px; */
 
     border-radius: 0.5rem;
 }
