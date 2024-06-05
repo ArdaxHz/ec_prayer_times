@@ -11,7 +11,6 @@ const props = defineProps({
 
 
 function downloadImage() {
-    console.log(props.wallpaperRef.value);
     domtoimage
         .toJpeg(props.wallpaperRef.value)
         .then(function (dataUrl) {

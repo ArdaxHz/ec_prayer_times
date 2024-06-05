@@ -41,7 +41,7 @@ onMounted(() => {
 
 <style scoped>
 .typeface-design-container {
-    transform: translate(0, 18rem);
+    transform: translate(0, 19rem);
     width: 100%;
 }
 

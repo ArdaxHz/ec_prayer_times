@@ -1,5 +1,6 @@
 <script setup>
-import { calculateAdhanToday, calculateAdhanMonth } from '../../composables/adhantimes'
+import { calculateAdhanMonth } from '../../composables/adhantimes';
+const { notify } = useNotification();
 
 const props = defineProps({
     latitude: Number,
@@ -11,22 +12,55 @@ const emits = defineEmits(['prayer-room-update'])
 const fajrAngle = ref(18);
 const sightingCommittee = ref('MuslimWorldLeague');
 const asrTime = ref('shafi');
+const month = ref(new Date().getMonth());
+const year = ref(new Date().getFullYear());
 
+const sightingCommitteeList = [{ "id": "MuslimWorldLeague", "name": "Muslim World League" }, { "id": "Egyptian", "name": "Egyptian" }, { "id": "Karachi", "name": "Karachi" }, { "id": "UmmAlQura", "name": "Umm Al Qura" }, { "id": "Dubai", "name": "Dubai" }, { "id": "MoonsightingCommittee", "name": "Moonsighting Committee" }, { "id": "NorthAmerica", "name": "North America" }, { "id": "Kuwait", "name": "Kuwait" }, { "id": "Qatar", "name": "Qatar" }, { "id": "Singapore", "name": "Singapore" }, { "id": "Tehran", "name": "Tehran" }, { "id": "Turkey", "name": "Turkey" }];
+const formMonthSelect = ref(0);
+const months = ref((function () {
+    const monthsNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    const d = new Date();
+    const currentYear = d.getFullYear();
+    const nextYear = currentYear + 1;
+    const rest = monthsNames.slice(d.getMonth()).map((month, _) => {
+        return { index: monthsNames.indexOf(month), name: `${month} ${currentYear}`, year: currentYear };
+    });
+    const gone = monthsNames.slice(0, d.getMonth()).map((month, _) => {
+        return { index: monthsNames.indexOf(month), name: `${month} ${nextYear}`, year: nextYear };
+    });
+
+    const monthsMap = rest.concat(gone);
+    return monthsMap;
+})());
 
 const isLocationEmpty = computed(() => {
-    console.log("DISABLED")
     return !props.latitude || !props.longitude;
 });
 
-function calculateMonth() {
-    console.log("CALCULATE MONTH")
-    const prayerTimes = calculateAdhanMonth(props.latitude, props.longitude, new Date(), { 'fajrAngle': fajrAngle.value, 'CalculationMethod': sightingCommittee.value, 'madhab': asrTime.value })
-    emits('prayer-room-update', prayerTimes)
+function getMonthAndYear() {
+    console.log("GET MONTH AND YEAR")
+    month.value = months.value[formMonthSelect.value].index;
+    year.value = months.value[formMonthSelect.value].year;
 }
 
-function calculateToday() {
-    console.log("CALCULATE DAY")
-    const prayerTimes = calculateAdhanToday(props.latitude, props.longitude, new Date(), { 'fajrAngle': fajrAngle.value, 'CalculationMethod': sightingCommittee.value, 'madhab': asrTime.value })
+function calculateMonth() {
+    if (isLocationEmpty.value) {
+        console.log("LOCATION IS EMPTY")
+        notify({
+            title: "Location not found.",
+            text: "Cannot calculate prayer times without location. Please provide a location.",
+            type: "warn"
+        });
+        return
+    }
+
+    console.log("CALCULATE MONTH")
+    getMonthAndYear();
+    const date = new Date();
+    date.setMonth(month.value);
+    date.setFullYear(year.value);
+    const prayerTimes = calculateAdhanMonth(props.latitude, props.longitude, date, { 'fajrAngle': fajrAngle.value, 'CalculationMethod': sightingCommittee.value, 'madhab': asrTime.value })
     emits('prayer-room-update', prayerTimes)
 }
 
@@ -39,7 +73,6 @@ watch(() => props.latitude, () => {
 })
 
 onMounted(() => {
-    console.log("FORM MOUNTED")
     if (props.latitude && props.longitude) {
         console.log("FORM MOUNTED WITH LOCATION")
         autoCalculate()
@@ -57,18 +90,9 @@ onMounted(() => {
             <label for="sightingCommittee">Sighting Committee:</label>
             <select id="sightingCommittee" v-model="sightingCommittee">
                 <option disabled value="">Please select one</option>
-                <option value="MuslimWorldLeague">Muslim World League</option>
-                <option value="Egyptian">Egyptian</option>
-                <option value="Karachi">Karachi</option>
-                <option value="UmmAlQura">Umm Al Qura</option>
-                <option value="Dubai">Dubai</option>
-                <option value="MoonsightingCommittee">Moonsighting Committee</option>
-                <option value="NorthAmerica">North America</option>
-                <option value="Kuwait">Kuwait</option>
-                <option value="Qatar">Qatar</option>
-                <option value="Singapore">Singapore</option>
-                <option value="Tehran">Tehran</option>
-                <option value="Turkey">Turkey</option>
+
+                <option v-for="sightingCom of sightingCommitteeList" :value="sightingCom.id">{{ sightingCom.name }}
+                </option>
             </select>
         </div>
 
@@ -86,10 +110,17 @@ onMounted(() => {
             </div>
         </div>
 
+        <div class="form-group">
+            <label for="month">Month:</label>
+            <select id="month" v-model="formMonthSelect">
+                <option disabled value="">Please select one</option>
+                <option v-for="(month, index) in months" :key="month.index" :value="index">{{ month.name }}
+                </option>
+            </select>
+        </div>
+
         <div class="button-group">
-            <!-- <button type="submit" class="buttons" :disabled="isLocationEmpty" @click.prevent="calculateToday">Calculate
-                Today</button> -->
-            <button type="submit" class="buttons" :disabled="isLocationEmpty" @click.prevent="calculateMonth">Calculate
+            <button type="submit" class="buttons" @click.prevent="calculateMonth">Calculate
                 Month</button>
         </div>
     </form>

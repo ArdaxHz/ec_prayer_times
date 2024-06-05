@@ -7,6 +7,5 @@ export default defineNuxtConfig({
       'GOOGLE_API_KEY': JSON.stringify(process.env.GOOGLE_API_KEY)
     }
   },
-  modules: ['nuxt-swiper']
+  modules: ['nuxt-swiper', 'nuxt3-notifications']
 })
-

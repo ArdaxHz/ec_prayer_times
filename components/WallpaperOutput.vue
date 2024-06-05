@@ -65,10 +65,6 @@ function handleImageLoad(ref) {
 function scaleText(width) {
     const containerWidth = width;
     const scaleFactor = containerWidth / 1297;
-
-    console.log(width);
-    console.log(scaleFactor);
-
     wallpaperText.value.style.transform = `scale(${(scaleFactor > 0 ? scaleFactor : 1)})`;
 };
 

@@ -17,17 +17,18 @@ const phoneImageHeight = ref(0);
 const previewScaleFactor = ref(0.337);
 const SmallerWallpaperDesignedRef = ref(null);
 
-
-const locationTitle = computed(() => {
-    return latitude.value && longitude.value
-        ? `Location: ${latitude.value.toFixed(2)}, ${longitude.value.toFixed(2)}`
-        : 'Location';
-});
-
 watch(() => prayerTimes.value, (newValue, _) => {
     const today = moment().format('YYYY-MM-DD');
-    gregorianDate.value = newValue[today].date
-    hijriDate.value = newValue[today].hijri
+    const prayerTimesToday = newValue[today];
+
+    if (prayerTimesToday) {
+        gregorianDate.value = prayerTimesToday.date;
+        hijriDate.value = prayerTimesToday.hijri;
+    } else {
+        const prayerTimeFirst = Object.keys(newValue)[0];
+        gregorianDate.value = newValue[prayerTimeFirst].date;
+        hijriDate.value = newValue[prayerTimeFirst].hijri;
+    }
 });
 
 const wallpaperName = computed(() => {
@@ -42,7 +43,6 @@ function updateLocation(locationObj) {
     latitude.value = locationObj.latitude;
     longitude.value = locationObj.longitude;
     location.value = locationObj.location;
-    console.log(location.value);
 }
 
 function updateWallpaperRef(ref) {
@@ -72,7 +72,6 @@ onMounted(() => {
             class="home-wallpaper-fullscreen" />
 
         <div class="left-container">
-            <!-- <h1>{{ locationTitle }}</h1> -->
             <div class="button-group">
                 <LocationLocateUserLocation @location-update="updateLocation" />
                 <WallpapersDownloadWallpaper :wallpaperRef="wallpaperRef" :wallpaperName="wallpaperName" />

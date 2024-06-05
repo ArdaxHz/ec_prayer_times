@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   ec_prayer_times-app:
-    image: abdulrahmanhadz/ec_prayer_times:v0.0.2
+    image: abdulrahmanhadz/ec_prayer_times:v0.0.3
     ports:
       - "5164:3000"
     env_file:

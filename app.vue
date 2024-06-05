@@ -1,8 +1,10 @@
 <template>
   <div>
+    <NuxtNotifications position="bottom left" :speed="500" />
     <div class="container">
       <HomePage />
     </div>
+    <p class="versioning">v0.0.3</p>
   </div>
 </template>
 
@@ -19,12 +21,22 @@ img {
 }
 
 .container {
-  min-height: 100%;
   position: absolute;
   left: 0;
   right: 0;
   margin-left: auto;
-  margin-right: auto
+  margin-right: auto;
+  padding-inline: 2rem;
+  padding-block: 2rem;
+}
+
+.versioning {
+  position: absolute;
+  bottom: 0;
+  right: 50%;
+  padding: 1rem;
+  font-size: 1rem;
+  scale: 0.7;
 }
 
 @media (min-width: 1280px) {
