@@ -15,7 +15,7 @@ const phoneImageRef = ref(null);
 const phoneImageWidth = ref(0);
 const phoneImageHeight = ref(0);
 const previewScaleFactor = ref(0.337);
-const SmallerWallpaperDesignedRef = ref(null);
+const borderRadius = ref(70);
 
 const props = defineProps({
     windowWidth: Number,
@@ -64,10 +64,7 @@ function updateTemplateChosen(template) {
 }
 
 function changeBorderRadius() {
-    const borderRadius = phoneImageHeight.value / 10.4285714;
-
-    phoneContainerRef.value.style.borderRadius = `${borderRadius}px`;
-    phoneContainerRef.value.style.MozBorderRadius = `${borderRadius}px`;
+    borderRadius.value = phoneImageHeight.value / 10.4285714;
 }
 
 watch(() => phoneImageWidth.value, (newValue, _) => {
@@ -87,24 +84,24 @@ watch(() => props.windowWidth, (newValue, _) => {
     phoneImageHeight.value = phoneImageRef.value.clientHeight;
     changeBorderRadius();
 });
+
 </script>
 
 <template>
-    <div class="container-page">
+    <div class="container-page flex flex-col-reverse md:flex-row justify-center gap-10 lg:gap-16 align-middle">
         <WallpaperOutput :location="location" @updateWallpaperRef="updateWallpaperRef"
             @updateWallpaperContainerRef="updateWallpaperContainerRef" :templateChosen="templateChosen"
             :prayerTimes="prayerTimes" :gregorianDate="gregorianDate" :hijriDate="hijriDate"
             class="home-wallpaper-fullscreen" />
 
         <div class="left-container">
-            <div class="button-group">
-                <LocationLocateUserLocation @location-update="updateLocation" />
-                <WallpapersDownloadWallpaper :wallpaperRef="wallpaperRef" :wallpaperName="wallpaperName" />
-            </div>
-
             <div class="prayer-times-form-container">
                 <LocationPrayerTimesCalculationForm :latitude="latitude" :longitude="longitude"
-                    @prayer-room-update="updatePrayerTimes" />
+                    @updatePrayerTimetable="updatePrayerTimes" />
+            </div>
+            <div class="button-group">
+                <LocationLocateUserLocation @updateUserLocation="updateLocation" />
+                <WallpapersDownloadWallpaper :wallpaperRef="wallpaperRef" :wallpaperName="wallpaperName" />
             </div>
             <client-only>
                 <WallpapersLoadWallpapers @updateTemplateChosen="updateTemplateChosen" />
@@ -113,11 +110,10 @@ watch(() => props.windowWidth, (newValue, _) => {
         <div class="right-container">
             <div class="phone" ref="phoneContainerRef">
                 <img ref="phoneImageRef" class="phone-image" src="../assets/phone.png" alt="phone" />
-                <WallpaperPreview ref="SmallerWallpaperDesignedRef" class="small-wallpaper-image" :location="location"
-                    :templateChosen="templateChosen" :prayerTimes="prayerTimes" :scaleFactor="previewScaleFactor"
-                    :gregorianDate="gregorianDate" :hijriDate="hijriDate" :phoneImageHeight="phoneImageHeight" />
+                <WallpaperPreview class="small-wallpaper-image" :location="location" :templateChosen="templateChosen"
+                    :prayerTimes="prayerTimes" :scaleFactor="previewScaleFactor" :gregorianDate="gregorianDate"
+                    :hijriDate="hijriDate" :phoneImageHeight="phoneImageHeight" :borderRadius="borderRadius" />
             </div>
-
         </div>
     </div>
 </template>
@@ -127,36 +123,20 @@ watch(() => props.windowWidth, (newValue, _) => {
     opacity: 0;
 }
 
-.container-page {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    gap: 5rem;
-}
-
-@media (min-width: 1000px) {
-    .container-page {
-        align-items: start;
-        flex-direction: row;
-    }
-}
 
 .left-container {
-    width: 350px;
+    /* min-width: 300px; */
     display: flex;
     flex-direction: column;
     gap: 30px;
-    margin-bottom: 50px;
 }
 
 .right-container {
-    width: 350px;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    position: relative;
+    /* min-width: 350px; */
+    justify-content: center;
+    align-items: center;
 }
+
 
 .top-left-buttons {
     display: flex;
@@ -171,43 +151,55 @@ watch(() => props.windowWidth, (newValue, _) => {
 }
 
 .phone {
-    width: 100%;
+    display: grid;
     overflow: hidden;
+    grid-template-areas: 'phone';
+    justify-content: center;
+    align-items: center;
+}
+
+.phone>* {
+    grid-area: phone;
+}
+
+.small-wallpaper-image {
     border-radius: 70px;
+    overflow: hidden;
+    transform: scale(0.98);
 }
 
 .phone-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 10;
-    transform: scale(1.02);
+    z-index: 1;
 }
 
 .button-group {
     display: flex;
     justify-content: space-between;
     gap: 10px;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+@media (min-width: 540px) {
+    .button-group {
+        flex-direction: row;
+        /* align-items: center; */
+    }
 }
 
 .buttons {
-    width: calc((350px - 10px) / 2);
+    position: relative;
+    display: flex;
+    flex: 1 1 0;
+    max-width: 100%;
 
+    font-weight: 600;
     padding-block: 0.5rem;
-    color: black;
-    border: 0;
-    font-size: 1.125rem;
-    line-height: 1.75rem;
+    padding-inline: 1.25rem;
     border-radius: 0.5rem;
     cursor: pointer;
-    background-color: white;
     white-space: wrap;
     text-align: center;
     justify-content: center;
-}
-
-.buttons:hover {
-    background-color: lightblue;
 }
 </style>

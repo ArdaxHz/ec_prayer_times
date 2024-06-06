@@ -2,7 +2,7 @@
 import { fetchCoordsLocation, getCurrentLocationNames } from '../../composables/geocodingapi.js'
 const { notify } = useNotification();
 
-const emits = defineEmits(['location-update']);
+const emits = defineEmits(['updateUserLocation']);
 const latitude = ref(null);
 const longitude = ref(null);
 const locationNames = ref({ city: null, area: null, country: null });
@@ -75,7 +75,7 @@ function getCurrentLocation() {
 }
 
 function emitLocation() {
-    emits('location-update', {
+    emits('updateUserLocation', {
         latitude: latitude.value,
         longitude: longitude.value,
         location: locationNames.value
@@ -88,7 +88,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div>
-        <button @click="getCurrentLocation" class="buttons auto-locate-button">Locate</button>
-    </div>
+    <UButton @click="getCurrentLocation"
+        class="buttons font-semibold text-xl hover:shadow-lg ring-gray-300 dark:ring-gray-700 " variant="outline">
+        Locate</UButton>
 </template>

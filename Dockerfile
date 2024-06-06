@@ -2,9 +2,9 @@ FROM node:20.14.0-alpine
 
 WORKDIR /usr/src/ec_prayer_times_app
 
-COPY package.json ./
+COPY package*.json ./
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 

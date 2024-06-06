@@ -1,8 +1,6 @@
 export const location = ref(null);
 
 export function fetchCoordsLocation(latitude, longitude) {
-    console.log(GOOGLE_API_KEY)
-
     return fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}&result_type=locality|sublocality|postal_code|country|administrative_area_level_1|administrative_area_level_2`)
         .then((response) => {
             return response.json()
@@ -17,7 +15,6 @@ export function fetchCoordsLocation(latitude, longitude) {
 }
 
 export function getCurrentLocationNames(currentLocation) {
-    console.log(currentLocation)
     const locality = currentLocation.filter(element => element.types.includes('locality'))[0]?.long_name ?? null
     const sublocality = currentLocation.filter(element => element.types.includes('sublocality'))[0]?.long_name ?? null
     const postal_town = currentLocation.filter(element => element.types.includes('postal_town'))[0]?.long_name ?? null

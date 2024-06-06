@@ -23,11 +23,11 @@ function chooseTemplate(swiper) {
 
 <template>
     <div class="template-chooser-container">
-        <h1>Choose your design:</h1>
-        <div class="template-images-container">
-            <Swiper class="swiper-cards" :modules="[SwiperAutoplay, SwiperEffectCards]" :slides-per-view="1"
-                :loop="false" :effect="'cards'" @activeIndexChange="chooseTemplate" @init="chooseTemplate">
-                <SwiperSlide v-for="(image, index) in images" :key="index" class="template-images-div">
+        <h1 class="text-2xl font-bold">Choose your design:</h1>
+        <div class="template-images-container rounded-lg">
+            <Swiper class="swiper-cards rounded-lg" :modules="[SwiperPagination]" :slides-per-view="1" :loop="false"
+                :effect="'cards'" @activeIndexChange="chooseTemplate" @init="chooseTemplate">
+                <SwiperSlide v-for="(image, index) in images" :key="index" class="template-images-div rounded-lg">
                     <img :src="image.preview" :alt="'Image ' + index" />
                 </SwiperSlide>
             </Swiper>
@@ -41,10 +41,11 @@ function chooseTemplate(swiper) {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    width: 100%;
 }
 
 .template-images-container {
-    width: inherit;
+    width: 100%;
     display: flex;
     flex-direction: row;
     gap: 20px;
@@ -56,7 +57,11 @@ function chooseTemplate(swiper) {
     display: flex;
     object-fit: cover;
     width: auto;
-    border-radius: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.template-images-div:last-child {
+    margin-right: 0;
 }
 
 .template-images-div img {
@@ -67,8 +72,5 @@ function chooseTemplate(swiper) {
 
 .swiper-cards {
     width: 150px;
-    /* height: 250px; */
-
-    border-radius: 0.5rem;
 }
 </style>

@@ -7,16 +7,17 @@ const props = defineProps({
     longitude: Number
 })
 
-const emits = defineEmits(['prayer-room-update'])
+const emits = defineEmits(['updatePrayerTimetable'])
 
 const fajrAngle = ref(18);
 const sightingCommittee = ref('MuslimWorldLeague');
-const asrTime = ref('shafi');
+const madhabMethod = ref('shafi');
 const month = ref(new Date().getMonth());
 const year = ref(new Date().getFullYear());
 
+const formMonthSelect = ref(month.value);
+const madhabs = [{ "value": "shafi", "label": "Early" }, { "value": "hanafi", "label": "Late" }];
 const sightingCommitteeList = [{ "id": "MuslimWorldLeague", "name": "Muslim World League" }, { "id": "Egyptian", "name": "Egyptian" }, { "id": "Karachi", "name": "Karachi" }, { "id": "UmmAlQura", "name": "Umm Al Qura" }, { "id": "Dubai", "name": "Dubai" }, { "id": "MoonsightingCommittee", "name": "Moonsighting Committee" }, { "id": "NorthAmerica", "name": "North America" }, { "id": "Kuwait", "name": "Kuwait" }, { "id": "Qatar", "name": "Qatar" }, { "id": "Singapore", "name": "Singapore" }, { "id": "Tehran", "name": "Tehran" }, { "id": "Turkey", "name": "Turkey" }];
-const formMonthSelect = ref(0);
 const months = ref((function () {
     const monthsNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -39,9 +40,16 @@ const isLocationEmpty = computed(() => {
 });
 
 function getMonthAndYear() {
-    console.log("GET MONTH AND YEAR")
-    month.value = months.value[formMonthSelect.value].index;
-    year.value = months.value[formMonthSelect.value].year;
+    console.log("GET MONTH AND YEAR");
+    const selectedOption = months.value.find(option => option.index === formMonthSelect.value);
+
+    if (!selectedOption) {
+        console.log("NO SELECTED OPTION")
+        return
+    }
+
+    month.value = selectedOption.index;
+    year.value = selectedOption.year;
 }
 
 function calculateMonth() {
@@ -60,13 +68,17 @@ function calculateMonth() {
     const date = new Date();
     date.setMonth(month.value);
     date.setFullYear(year.value);
-    const prayerTimes = calculateAdhanMonth(props.latitude, props.longitude, date, { 'fajrAngle': fajrAngle.value, 'CalculationMethod': sightingCommittee.value, 'madhab': asrTime.value })
-    emits('prayer-room-update', prayerTimes)
+    const prayerTimes = calculateAdhanMonth(props.latitude, props.longitude, date, { 'fajrAngle': fajrAngle.value, 'CalculationMethod': sightingCommittee.value, 'madhab': madhabMethod.value })
+    emits('updatePrayerTimetable', prayerTimes)
 }
 
 function autoCalculate() {
-    calculateMonth()
+    calculateMonth();
 }
+
+watch([fajrAngle, sightingCommittee, madhabMethod, formMonthSelect], ([newA, newB, newC, newD], [prevA, prevB, prevC, prevD]) => {
+    calculateMonth();
+});
 
 watch(() => props.latitude, () => {
     autoCalculate()
@@ -74,134 +86,90 @@ watch(() => props.latitude, () => {
 
 onMounted(() => {
     if (props.latitude && props.longitude) {
-        console.log("FORM MOUNTED WITH LOCATION")
-        autoCalculate()
+        console.log("FORM MOUNTED WITH LOCATION");
+        autoCalculate();
     }
 })
 </script>
 
 <template>
-    <form class="form-container">
-        <div class="form-group">
-            <label for="fajrAngle">Fajr Angle:</label>
-            <input type="number" id="fajrAngle" v-model="fajrAngle">
-        </div>
-        <div class="form-group">
-            <label for="sightingCommittee">Sighting Committee:</label>
-            <select id="sightingCommittee" v-model="sightingCommittee">
-                <option disabled value="">Please select one</option>
+    <div class="form-container">
+        <div class="grid grid-cols-2 text-center justify-center">
+            <div class="grid gap-y-5 items-center">
+                <div class="inner-div-text">
+                    <UFormGroup label="Fajr Angle:" :ui="{ label: { base: 'text-xl text-black font-semibold' } }" />
+                </div>
+                <div class="inner-div-text">
+                    <UFormGroup label="Sighting Committee:"
+                        :ui="{ label: { base: 'text-xl text-black font-semibold' } }" />
+                </div>
+                <div class="inner-div-text">
+                    <UFormGroup label="Asr Time:" :ui="{ label: { base: 'text-xl text-black font-semibold' } }" />
+                </div>
+                <div class="inner-div-text">
+                    <UFormGroup label="Month:" :ui="{ label: { base: 'text-xl text-black font-semibold' } }" />
+                </div>
+            </div>
+            <div class="grid gap-y-5">
+                <div>
+                    <UInput type="number" v-model="fajrAngle" size="md"
+                        :ui="{ rounded: 'rounded-lg', wrapper: 'max-w-[20rem]', color: { white: { outline: 'text-black' } } }" />
+                </div>
+                <div>
+                    <UInputMenu v-model="sightingCommittee" :options="sightingCommitteeList" value-attribute="id"
+                        option-attribute="name" size="md" :ui="{ wrapper: 'max-w-[20rem]', }" />
+                </div>
 
-                <option v-for="sightingCom of sightingCommitteeList" :value="sightingCom.id">{{ sightingCom.name }}
-                </option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="asrTime">Asr Time:</label>
-            <div>
-                <label class="radio-option">
-                    <input type="radio" value="shafi" v-model="asrTime">
-                    <span class="radio-text"><span>Early</span></span>
-                </label>
-                <label class="radio-option">
-                    <input type="radio" value="hanafi" v-model="asrTime">
-                    <span class="radio-text"><span>Late</span></span>
-                </label>
+                <div>
+                    <div class="form-radio-group">
+                        <URadio v-for=" madhab of madhabs " :key="madhab.value" v-model="madhabMethod" v-bind="madhab"
+                            :label="madhab.label" class="flex radio-option group" :ui="{
+                        label: `flex cursor-pointer text-md px-3 py-1 rounded-lg hover:shadow-lg
+                        ring-1 ring-inset ring-gray-300 
+                        focus:ring-2 focus:ring-primary-500
+                        group-has-[:checked]:bg-primary-500 group-has-[:checked]:text-white group-has-[:checked]:ring-primary-500
+                        hover:bg-primary-50 group-has-[:checked]:hover:bg-primary-600
+                        dark:hover:bg-primary-950 dark:ring-gray-700 dark:focus:ring-primary-400
+                        dark:group-has-[:checked]:bg-primary-700 dark:group-has-[:checked]:ring-primary-700
+                        dark:group-has-[:checked]:hover:bg-primary-600 dark:group-has-[:checked]:hover:ring-primary-600`,
+                        inner: 'm-0',
+                    }" />
+                    </div>
+                </div>
+                <div>
+                    <UInputMenu v-model="formMonthSelect" :options="months" value-attribute="index"
+                        option-attribute="name" size="md" variant="outline" />
+                </div>
             </div>
         </div>
-
-        <div class="form-group">
-            <label for="month">Month:</label>
-            <select id="month" v-model="formMonthSelect">
-                <option disabled value="">Please select one</option>
-                <option v-for="(month, index) in months" :key="month.index" :value="index">{{ month.name }}
-                </option>
-            </select>
-        </div>
-
-        <div class="button-group">
-            <button type="submit" class="buttons" @click.prevent="calculateMonth">Calculate
-                Month</button>
-        </div>
-    </form>
+    </div>
 </template>
 
 
 <style>
-#sightingCommittee {
-    border-radius: 5px;
+.inner-div-text>* {
+    display: flex;
+    justify-content: start;
+    text-align: left;
 }
 
 .form-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-
     font-size: 1.125rem;
     line-height: 1.75rem;
 }
 
-.form-group {
+
+.form-radio-group {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex: 1 1 0px;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: end;
+    margin: 0;
 }
 
-.form-group input[type="number"] {
-    width: 100px;
-
-}
-
-.form-group select {
-    width: fit-content;
-}
-
-.form-group input[type="number"],
-.form-group select {
-    border: 0;
-    border-radius: 0.25rem;
-    padding: 0.175rem;
-}
-
-.form-group div {
-    display: flex;
-    gap: 10px;
-}
-
-.radio-option {
-    display: inline-block;
-    cursor: pointer;
-}
-
-.radio-option input[type="radio"] {
+.form-radio-group input[type="radio"] {
     display: none;
+    margin: 0;
 }
-
-.radio-option .radio-text {
-    padding: 0.175rem;
-    border: 1px solid transparent;
-    border-radius: 0.25rem;
-    background-color: lightblue;
-}
-
-.radio-option .radio-text span {
-    color: black;
-}
-
-.radio-option input[type="radio"]:checked+.radio-text {
-    border-color: green;
-}
-
-.radio-option input[type="radio"]:checked+.radio-text span {
-    color: green;
-}
-
-.button-group button:disabled {
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-.button-group button[type="submit"] {
-    width: 100%;
-}
-</style>../composables/adhantimes
+</style>

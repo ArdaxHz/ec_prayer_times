@@ -12,35 +12,19 @@ useResizeObserver(rootContainer, (entries) => {
 </script>
 
 <template>
-  <div ref="rootContainer">
+  <div ref="rootContainer" class="root-container mx-auto min-w-[5rem] min-h-[80svh] w-[90svw] max-h-[90svh]">
     <NuxtNotifications position="bottom left" :speed="500" />
-    <div class="container">
+    <div class="py-10 px-4">
       <HomePage :windowWidth="windowWidth" :windowHeight="windowHeight" />
     </div>
-    <p class="versioning">v0.0.4</p>
+    <p class="versioning">v0.0.6</p>
   </div>
 </template>
 
 
 <style>
 * {
-  margin: 0;
-  padding: 0;
   font-family: 'Vazirmatn', Helvetica, sans-serif;
-}
-
-img {
-  display: block;
-}
-
-.container {
-  position: absolute;
-  left: 0;
-  right: 0;
-  margin-left: auto;
-  margin-right: auto;
-  padding-inline: 4rem;
-  padding-block: 3rem;
 }
 
 .versioning {
@@ -50,13 +34,9 @@ img {
   padding: 1rem;
   font-size: 1rem;
   scale: 0.7;
+  display: none;
 }
 
-@media (min-width: 1280px) {
-  .container {
-    width: 70vh;
-  }
-}
 
 @font-face {
   font-family: 'Vazirmatn';

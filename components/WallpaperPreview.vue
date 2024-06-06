@@ -1,8 +1,6 @@
 <script setup>
 const previewContainer = ref(null);
 const scaledWallpaperComponent = ref(null);
-const templateWallpaperScaledComponent = ref(null);
-const phoneRef = ref(null);
 
 const props = defineProps({
     location: Object,
@@ -12,6 +10,7 @@ const props = defineProps({
     gregorianDate: Object,
     hijriDate: Object,
     phoneImageHeight: Number,
+    borderRadius: Number
 });
 
 watch(() => props.scaleFactor, (newValue, _) => {
@@ -23,6 +22,13 @@ watch(() => props.scaleFactor, (newValue, _) => {
 watch(() => props.phoneImageHeight, (newValue, _) => {
     if (newValue) {
         previewContainer.value.style.height = `${newValue}px`;
+    }
+});
+
+watch(() => props.borderRadius, (newValue, _) => {
+    if (newValue) {
+        previewContainer.value.style.borderRadius = `${newValue}px`;
+        previewContainer.value.style.MozBorderRadius = `${newValue}px`;
     }
 });
 </script>
