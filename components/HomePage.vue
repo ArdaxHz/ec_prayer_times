@@ -1,5 +1,7 @@
 <script setup>
 import moment from 'moment';
+const { notify } = useNotification();
+
 const latitude = ref(null);
 const longitude = ref(null);
 const location = ref(null);
@@ -9,6 +11,7 @@ const wallpaperContainerRef = ref(null);
 const templateChosen = ref(null);
 const gregorianDate = ref(null);
 const hijriDate = ref(null);
+const usingSafari = ref(false);
 
 const phoneContainerRef = ref(null);
 const phoneImageRef = ref(null);
@@ -37,8 +40,19 @@ watch(() => prayerTimes.value, (newValue, _) => {
 });
 
 const wallpaperName = computed(() => {
-    return location.value ? `${location.value.area}-${location.value.country}_${moment(gregorianDate.value).format('MM-YY')}_prayer-timetable`.toLowerCase() : 'ec-prayer-timetable';
+    let name = 'ec-prayer-timetable';
+    if (location.value) {
+        if (location.value.area && location.value.country) {
+            name = `${location.value.area}-${location.value.country}_${moment(gregorianDate.value).format('MM-YY')}_prayer-timetable`.toLowerCase();
+        }
+    }
+    return name;
 });
+
+const isSafari = () => {
+    var ua = navigator.userAgent.toLowerCase();
+    return (ua.indexOf('safari') != -1 && ua.indexOf('chrome') == -1 && ua.indexOf('android') == -1);
+};
 
 function updatePrayerTimes(prayer) {
     prayerTimes.value = prayer;
@@ -77,6 +91,19 @@ onMounted(() => {
     phoneImageWidth.value = phoneImageRef.value.clientWidth;
     phoneImageHeight.value = phoneImageRef.value.clientHeight;
     changeBorderRadius();
+
+    if (isSafari()) {
+        usingSafari.value = true;
+        console.log("Using Safari.")
+
+        notify({
+            title: "Safari detected.",
+            text: "This website does not work on Safari, please use a different browser.",
+            type: "warn",
+            duration: -1,
+            closeOnClick: false
+        });
+    }
 });
 
 watch(() => props.windowWidth, (newValue, _) => {
@@ -101,7 +128,8 @@ watch(() => props.windowWidth, (newValue, _) => {
             </div>
             <div class="button-group">
                 <LocationLocateUserLocation @updateUserLocation="updateLocation" />
-                <WallpapersDownloadWallpaper :wallpaperRef="wallpaperRef" :wallpaperName="wallpaperName" />
+                <WallpapersDownloadWallpaper v-if="!usingSafari" :wallpaperRef="wallpaperRef"
+                    :wallpaperName="wallpaperName" />
             </div>
             <client-only>
                 <WallpapersLoadWallpapers @updateTemplateChosen="updateTemplateChosen" />
