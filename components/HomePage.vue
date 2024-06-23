@@ -11,7 +11,6 @@ const wallpaperContainerRef = ref(null);
 const templateChosen = ref(null);
 const gregorianDate = ref(null);
 const hijriDate = ref(null);
-const usingSafari = ref(false);
 
 const phoneContainerRef = ref(null);
 const phoneImageRef = ref(null);
@@ -48,11 +47,6 @@ const wallpaperName = computed(() => {
     }
     return name;
 });
-
-const isSafari = () => {
-    var ua = navigator.userAgent.toLowerCase();
-    return (ua.indexOf('safari') != -1 && ua.indexOf('chrome') == -1 && ua.indexOf('android') == -1);
-};
 
 function updatePrayerTimes(prayer) {
     prayerTimes.value = prayer;
@@ -91,19 +85,6 @@ onMounted(() => {
     phoneImageWidth.value = phoneImageRef.value.clientWidth;
     phoneImageHeight.value = phoneImageRef.value.clientHeight;
     changeBorderRadius();
-
-    if (isSafari()) {
-        usingSafari.value = true;
-        console.log("Using Safari.")
-
-        notify({
-            title: "Safari detected.",
-            text: "This website does not work on Safari, please use a different browser.",
-            type: "warn",
-            duration: -1,
-            closeOnClick: false
-        });
-    }
 });
 
 watch(() => props.windowWidth, (newValue, _) => {

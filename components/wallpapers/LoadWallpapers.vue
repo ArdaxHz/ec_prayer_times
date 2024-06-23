@@ -1,14 +1,22 @@
 <script setup>
-import wallpaperData from '@/assets/wallpapers/designs.json' with { type: 'json' };
+// import wallpaperData from '@/assets/wallpapers/designs.json' with { type: 'json' };
 
 const images = computed(() => {
-    return wallpaperData.map((image) => {
+    const imagesUrls = Object.values(import.meta.glob('@/assets/wallpapers/*.{png,jpg,jpeg,PNG,JPEG}', { eager: true, query: '?url', import: 'default' }));
+    return imagesUrls.map((image) => {
         return {
-            preview: new URL(`/assets/wallpapers/preview/${image.preview}`, import.meta.url),
-            template: new URL(`/assets/wallpapers/template/${image.template}`, import.meta.url),
-            typeface: image.typeface
+            preview: new URL(image, import.meta.url),
+            template: new URL(image, import.meta.url),
+            typeface: "WallpapersDesignsWhiteTextYellowTableDesign"
         }
-    })
+    });
+    // return wallpaperData.map((image) => {
+    //     return {
+    //         preview: new URL(`/assets/wallpapers/preview/${image.preview}`, import.meta.url),
+    //         template: new URL(`/assets/wallpapers/template/${image.template}`, import.meta.url),
+    //         typeface: image.typeface
+    //     }
+    // })
 });
 
 const templateChosen = ref(null);
@@ -23,7 +31,8 @@ function chooseTemplate(swiper) {
 
 <template>
     <div class="template-chooser-container">
-        <h1 class="text-2xl font-bold">Choose your design:</h1>
+        <h1 class="text-2xl font-bold max-w-[400px]">Choose from the following {{ images.length }} designs for the
+            background:</h1>
         <div class="template-images-container rounded-lg">
             <Swiper class="swiper-cards rounded-lg" :modules="[SwiperPagination]" :slides-per-view="1" :loop="false"
                 :effect="'cards'" @activeIndexChange="chooseTemplate" @init="chooseTemplate">
