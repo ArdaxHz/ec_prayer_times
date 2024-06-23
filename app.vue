@@ -4,9 +4,14 @@ const windowWidth = ref(0);
 const windowHeight = ref(0);
 const usingSafari = ref(false);
 
+const { notify } = useNotification();
+
 const isSafari = () => {
-  var ua = navigator.userAgent.toLowerCase();
-  return (ua.indexOf('safari') != -1 && ua.indexOf('chrome') == -1 && ua.indexOf('android') == -1);
+  const ua = navigator.userAgent.toLowerCase();
+  const iOS = !!ua.match(/iP(ad|od|hone)/i);
+  const webkit = !!ua.match(/WebKit/i);
+
+  return iOS && webkit && !ua.match(/CriOS/i) && !ua.match(/FxiOS/i);
 };
 
 useResizeObserver(rootContainer, (entries) => {
@@ -30,6 +35,13 @@ onMounted(() => {
     });
   }
 });
+
+useHead({
+  title: 'Salah Times',
+  meta: [
+    { name: 'description', content: 'Calculates Salah times and generates a wallpaper to download for your phone.' }
+  ]
+})
 </script>
 
 <template>

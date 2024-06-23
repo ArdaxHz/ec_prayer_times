@@ -1,6 +1,5 @@
 <script setup>
 import moment from 'moment';
-const { notify } = useNotification();
 
 const latitude = ref(null);
 const longitude = ref(null);
