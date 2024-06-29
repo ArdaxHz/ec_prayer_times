@@ -3,6 +3,8 @@ import { toCanvas } from 'html-to-image';
 import html2canvas from 'html2canvas';
 import FileSaver from 'file-saver';
 
+import domtoimage from '~/lib/dom-to-image';
+
 const { notify } = useNotification();
 
 const props = defineProps({
@@ -48,42 +50,57 @@ const text = ref("If the image doesn't download automatically, right click > 'Sa
 // }
 
 function downloadImage() {
-    let downloaderToUse = toCanvas;
-    if (props.usingSafari) {
-        console.log('Using apple device.');
-        downloaderToUse = html2canvas;
+    const config = {
+      style: {
+        transformOrigin: 'top left',
+        alignItems: 'start',
+        justifyContent: 'start',
+      },
+      imageTimeout: 0, width: 1297, height: 2796, foreignObjectRendering: true
     }
-    downloaderToUse(props.wallpaperRef.value, { imageTimeout: 0, width: 1297, height: 2796, foreignObjectRendering: true })
-        .then(function (canvas) {
-            canvas.toBlob(function (blob) {
-                if (blob == null) {
-                    console.error('Canvas is empty.');
-                    return;
-                }
-                let url = URL.createObjectURL(blob);
-                imageHref.value = url;
-                console.log(url);
-                isOpen.value = true;
-                FileSaver.saveAs(blob, `${props.wallpaperName}.jpg`);
-            })
-        }, "image/jpeg")
-        // let downloadLink = document.createElement('a');
-        // downloadLink.setAttribute('download', `${props.wallpaperName}.jpg`);
-        // canvas.toBlob(function (blob) {
-        //     let url = URL.createObjectURL(blob);
-        //     imageHref.value = url;
-        //     console.log(url);
-        //     isOpen.value = true;
-        // });
-        // const dataUrl = canvas.toDataURL("image/jpeg");
-        // download(dataUrl, `${props.wallpaperName}.jpg`, 'image/jpeg');
-        // if (md.mobile() == 'iPhone' || md.mobile() == '`iPad') {
-        // } else {
-        //     var link = document.createElement('img');
-        //     // link.download = `${props.wallpaperName}.jpg`;
-        //     // link.href = dataUrl;
-        //     // link.click();
-        // }
+
+    domtoimage(props.wallpaperRef.value, config)
+    .toSvg(node, config)
+        .then(dataURL =>
+          dataURL
+            .replace(/&nbsp;/g, '&#160;')
+            // https://github.com/tsayen/dom-to-image/blob/fae625bce0970b3a039671ea7f338d05ecb3d0e8/src/dom-to-image.js#L551
+            .replace(/%23/g, '#')
+            .replace(/%0A/g, '\n')
+            // https://stackoverflow.com/questions/7604436/xmlparseentityref-no-name-warnings-while-loading-xml-into-a-php-file
+            .replace(/&(?!#?[a-z0-9]+;)/g, '&amp;')
+            // remove other fonts which are not used
+            .replace(
+              // current font-family used
+              new RegExp(
+                '@font-face\\s+{\\s+font-family: (?!"*' + this.state.fontFamily + ').*?}',
+                'g'
+              ),
+              ''
+            )
+        )
+        .then(uri => uri.slice(uri.indexOf(',') + 1))
+        .then(data => new Blob([data], { type: 'image/svg+xml' }))
+        .then(blob => window.URL.createObjectURL(blob))
+        .then(url => {
+            if (!options.open) {
+                link.download = `${props.wallpaperName}.jpg`
+            }
+            if (
+                // isFirefox
+                window.navigator.userAgent.indexOf('Firefox') !== -1 &&
+                window.navigator.userAgent.indexOf('Chrome') === -1
+            ) {
+                link.target = '_blank'
+            }
+            console.log(url);
+            link.href = url
+            imageHref.value = url;
+            isOpen.value = true;
+            document.body.appendChild(link)
+            link.click()
+            link.remove()
+        })
         .catch(function (error) {
             console.error('oops, something went wrong!', error);
             notify({
