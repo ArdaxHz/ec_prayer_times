@@ -27,8 +27,8 @@ onMounted(() => {
     console.log("Using Safari.")
 
     notify({
-      title: "Safari detected, image downloading not possible.",
-      text: "Image downloading does not work on Safari, please use a different browser.",
+      title: "Safari detected, image downloading may not work.",
+      text: "Image downloading does not work correctly on Safari, please use a different browser if the image downloaded is blank.",
       type: "warn",
       duration: -1,
       closeOnClick: false
@@ -49,9 +49,9 @@ useHead({
     <NuxtNotifications position="bottom left" :speed="500" />
     <div class="py-10 px-4">
       <h1 class="safari-site-notif mb-8 px-10 text-center text-4xl font-extrabold text-red-500" v-if="usingSafari">
-        Image downloading does not work on Safari, please use a different browser.
+        Image downloading does not work correctly on Safari, please use a different browser if the image downloaded is blank.
       </h1>
-      <HomePage :windowWidth="windowWidth" :windowHeight="windowHeight" />
+      <HomePage :windowWidth="windowWidth" :windowHeight="windowHeight" :usingSafari="usingSafari" />
     </div>
     <p class="versioning">v0.0.7</p>
   </div>

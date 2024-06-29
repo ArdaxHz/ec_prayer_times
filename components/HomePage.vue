@@ -20,7 +20,8 @@ const borderRadius = ref(70);
 
 const props = defineProps({
     windowWidth: Number,
-    windowHeight: Number
+    windowHeight: Number,
+    usingSafari: Boolean
 });
 
 watch(() => prayerTimes.value, (newValue, _) => {
@@ -108,8 +109,8 @@ watch(() => props.windowWidth, (newValue, _) => {
             </div>
             <div class="button-group">
                 <LocationLocateUserLocation @updateUserLocation="updateLocation" />
-                <WallpapersDownloadWallpaper v-if="!usingSafari" :wallpaperRef="wallpaperRef"
-                    :wallpaperName="wallpaperName" />
+                <WallpapersDownloadWallpaper :wallpaperRef="wallpaperRef"
+                    :wallpaperName="wallpaperName" :usingSafari="usingSafari" />
             </div>
             <client-only>
                 <WallpapersLoadWallpapers @updateTemplateChosen="updateTemplateChosen" />
