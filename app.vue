@@ -10,8 +10,9 @@ const isSafari = () => {
   const ua = navigator.userAgent.toLowerCase();
   const iOS = !!ua.match(/iP(ad|od|hone)/i);
   const webkit = !!ua.match(/WebKit/i);
+  const notsafari = ua.match(/(?:chrome|firefox|opera|brave|CriOS|FxiOS)/i);
 
-  return iOS || webkit;
+  return (iOS || webkit) && !notsafari;
 };
 
 useResizeObserver(rootContainer, (entries) => {
