@@ -54,7 +54,7 @@ useHead({
       </h1>
       <HomePage :windowWidth="windowWidth" :windowHeight="windowHeight" :usingSafari="usingSafari" />
     </div>
-    <p class="versioning">v0.0.7</p>
+    <p class="versioning">v0.0.8</p>
   </div>
 </template>
 
