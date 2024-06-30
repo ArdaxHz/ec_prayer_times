@@ -62,8 +62,11 @@ function downloadImage() {
 
     domtoimage
     .toPng(props.wallpaperRef.value, config)
-    // .then(blob => window.URL.createObjectURL(blob))
     .then(url => {
+        var img = new Image();
+        img.src = url;
+        document.body.appendChild(img);
+
         const link = document.createElement('a')
         link.download = `${props.wallpaperName}.png`
         if (
@@ -82,43 +85,62 @@ function downloadImage() {
         link.remove()
     })
     // .toSvg(props.wallpaperRef.value, config)
-    //     .then(dataURL =>
-    //       dataURL
-    //         .replace(/&nbsp;/g, '&#160;')
-    //         .replace(/%23/g, '#')
-    //         .replace(/%0A/g, '\n')
-    //         .replace(/&(?!#?[a-z0-9]+;)/g, '&amp;')
-    //     )
-    //     .then(uri => uri.slice(uri.indexOf(',') + 1))
-    //     .then(data => new Blob([data], { type: 'image/svg+xml' }))
-    //     .then(blob => window.URL.createObjectURL(blob))
-    //     .then(url => {
-    //         const link = document.createElement('a')
-    //         link.download = `${props.wallpaperName}.jpg`
-    //         if (
-    //             // isFirefox
-    //             window.navigator.userAgent.indexOf('Firefox') !== -1 &&
-    //             window.navigator.userAgent.indexOf('Chrome') === -1
-    //         ) {
-    //             link.target = '_blank'
-    //         }
-    //         console.log(url);
-    //         link.href = url
-    //         imageHref.value = url;
-    //         isOpen.value = true;
-    //         document.body.appendChild(link)
-    //         link.click()
-    //         link.remove()
-    //     })
-    //     .catch(function (error) {
-    //         console.error('oops, something went wrong!', error);
-    //         notify({
-    //             title: `Error downloading image ${error.code}.`,
-    //             text: error.message,
-    //             type: "error"
-    //         });
+    // .then(dataURL =>
+    //     dataURL
+    //     .replace(/&nbsp;/g, '&#160;')
+    //     .replace(/%23/g, '#')
+    //     .replace(/%0A/g, '\n')
+    //     .replace(/&(?!#?[a-z0-9]+;)/g, '&amp;')
+    // )
+    // .then(uri => uri.slice(uri.indexOf(',') + 1))
+    // .then(data => new Blob([data], { type: 'image/svg+xml' }))
+    // .then(blob => window.URL.createObjectURL(blob))
+    // .then(url => {
+    //     const link = document.createElement('a')
+    //     link.download = `${props.wallpaperName}.svg`
+    //     if (
+    //         // isFirefox
+    //         window.navigator.userAgent.indexOf('Firefox') !== -1 &&
+    //         window.navigator.userAgent.indexOf('Chrome') === -1
+    //     ) {
+    //         link.target = '_blank'
     //     }
-    // );
+    //     console.log(url);
+    //     link.href = url
+    //     imageHref.value = url;
+    //     isOpen.value = true;
+    //     document.body.appendChild(link)
+    //     link.click()
+    //     link.remove()
+    //     const image = new Image()
+    //     image.crossOrigin="anonymous"
+    //     image.src = url
+        
+    //     image.addEventListener('load', () => {
+    //         const width = 1297
+    //         const height = 2796
+    //         const canvas = document.createElement('canvas')
+            
+    //         canvas.setAttribute('width', width)
+    //         canvas.setAttribute('height', height)
+            
+    //         const context = canvas.getContext('2d')
+    //         context.drawImage(image, 0, 0, width, height)
+            
+    //         const dataUrl = canvas.toDataURL('image/png')
+    //     })
+        
+        
+    // })
+    .catch(function (error) {
+        console.error('oops, something went wrong!', error);
+        notify({
+            title: `Error downloading image ${error.code}.`,
+            text: error.message,
+            type: "error"
+        });
+    }
+    );
 }
 </script>
 
