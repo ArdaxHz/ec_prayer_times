@@ -60,7 +60,7 @@ function downloadImage() {
       imageTimeout: 0, foreignObjectRendering: true
     }
 
-    let dataUrl=domtoimage.toJpeg(props.wallpaperRef.value, config)
+    let dataUrl = domtoimage.toJpeg(props.wallpaperRef.value, config)
 
     if (props.usingSafari) {
         html2canvas(props.wallpaperRef.value, config)
@@ -75,7 +75,7 @@ function downloadImage() {
         }, "image/jpeg")
     }
 
-    dataUrl
+    domtoimage.toJpeg(props.wallpaperRef.value, config)
     .then(url => {
         const link = document.createElement('a')
         link.download = `${props.wallpaperName}.jpg`
