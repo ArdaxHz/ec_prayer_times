@@ -60,15 +60,25 @@ function downloadImage() {
       imageTimeout: 0, foreignObjectRendering: true
     }
 
-    domtoimage
-    .toPng(props.wallpaperRef.value, config)
-    .then(url => {
-        var img = new Image();
-        img.src = url;
-        document.body.appendChild(img);
+    let dataUrl=domtoimage.toJpeg(props.wallpaperRef.value, config)
 
+    if (props.usingSafari) {
+        html2canvas(props.wallpaperRef.value, config)
+        .then(function (canvas) {
+            canvas.toBlob(function (blob) {
+                if (blob == null) {
+                    console.error('Canvas is empty.');
+                    return;
+                }                
+                dataUrl=URL.createObjectURL(blob);
+            })
+        }, "image/jpeg")
+    }
+
+    dataUrl
+    .then(url => {
         const link = document.createElement('a')
-        link.download = `${props.wallpaperName}.png`
+        link.download = `${props.wallpaperName}.jpg`
         if (
             // isFirefox
             window.navigator.userAgent.indexOf('Firefox') !== -1 &&
@@ -84,6 +94,9 @@ function downloadImage() {
         link.click()
         link.remove()
     })
+
+    
+
     // .toSvg(props.wallpaperRef.value, config)
     // .then(dataURL =>
     //     dataURL
