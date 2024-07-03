@@ -49,9 +49,10 @@ useHead({
   <div ref="rootContainer" class="root-container mx-auto min-w-[5rem] min-h-[80svh] w-[90svw] max-h-[90svh]">
     <NuxtNotifications position="bottom left" :speed="500" />
     <div class="py-10 px-4">
-      <h1 class="safari-site-notif mb-8 px-10 text-center text-4xl font-extrabold text-red-500" v-if="usingSafari">
-        Image downloading does not work correctly on Safari, please use a different browser if the image downloaded is blank.
-      </h1>
+      <!-- <h1 class="safari-site-notif mb-8 px-10 text-center text-2xl font-extrabold text-red-500" v-if="usingSafari">
+        Image downloading does not work correctly on Safari, please use a different browser if the image downloaded is
+        blank.
+      </h1> -->
       <HomePage :windowWidth="windowWidth" :windowHeight="windowHeight" :usingSafari="usingSafari" />
     </div>
     <p class="versioning">v0.0.8</p>
