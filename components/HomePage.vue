@@ -105,12 +105,12 @@ watch(() => props.windowWidth, (newValue, _) => {
         <div class="left-container">
             <div class="prayer-times-form-container">
                 <LocationPrayerTimesCalculationForm :latitude="latitude" :longitude="longitude"
-                    @updatePrayerTimetable="updatePrayerTimes" />
+                    :gregorianDate="gregorianDate" @updatePrayerTimetable="updatePrayerTimes" />
             </div>
             <div class="button-group">
                 <LocationLocateUserLocation @updateUserLocation="updateLocation" />
-                <WallpapersDownloadWallpaper :wallpaperRef="wallpaperRef"
-                    :wallpaperName="wallpaperName" :usingSafari="usingSafari" />
+                <WallpapersDownloadWallpaper :wallpaperRef="wallpaperRef" :wallpaperName="wallpaperName"
+                    :usingSafari="usingSafari" />
             </div>
             <client-only>
                 <WallpapersLoadWallpapers @updateTemplateChosen="updateTemplateChosen" />

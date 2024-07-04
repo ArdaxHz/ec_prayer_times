@@ -1,8 +1,9 @@
 <script setup>
+import { shuffleArray } from '~/composables/helpers';
 // import wallpaperData from '@/assets/wallpapers/designs.json' with { type: 'json' };
 
 const images = computed(() => {
-    const imagesUrls = Object.values(import.meta.glob('@/assets/wallpapers/*.{png,jpg,jpeg,PNG,JPEG}', { eager: true, query: '?url', import: 'default' }));
+    const imagesUrls = shuffleArray(Object.values(import.meta.glob('@/assets/wallpapers/*.{png,jpg,jpeg,PNG,JPEG}', { eager: true, query: '?url', import: 'default' })));
     return imagesUrls.map((image) => {
         return {
             preview: new URL(image, import.meta.url),
@@ -33,9 +34,12 @@ function chooseTemplate(swiper) {
     <div class="template-chooser-container">
         <h1 class="text-2xl font-bold max-w-[400px]">Choose from the following {{ images.length }} designs for the
             background:</h1>
+        <p>Swipe left and right to change the background</p>
         <div class="template-images-container rounded-lg">
-            <Swiper class="swiper-cards rounded-lg" :modules="[SwiperPagination]" :slides-per-view="1" :loop="false"
-                :effect="'cards'" @activeIndexChange="chooseTemplate" @init="chooseTemplate">
+            <Swiper class="swiper-cards rounded-lg"
+                :modules="[SwiperPagination, SwiperNavigation, SwiperPagination, SwiperScrollbar]" :slides-per-view="1"
+                :loop="true" :effect="'cards'" @activeIndexChange="chooseTemplate" @init="chooseTemplate" navigation
+                :pagination="{ clickable: true }" :scrollbar="{ draggable: true }">
                 <SwiperSlide v-for="(image, index) in images" :key="index" class="template-images-div rounded-lg">
                     <img :src="image.preview" :alt="'Image ' + index" />
                 </SwiperSlide>

@@ -12,6 +12,8 @@ export default defineNuxtConfig({
     prerender: {
       autoSubfolderIndex: false
     }
+  },
+  colorMode: {
+    preference: 'dark'
   }
-
 })

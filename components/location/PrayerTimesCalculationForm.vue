@@ -1,10 +1,12 @@
 <script setup>
-import { calculateAdhanMonth } from '../../composables/adhantimes';
+import moment from 'moment';
+import { calculateAdhanMonth } from '~/composables/adhantimes';
 const { notify } = useNotification();
 
 const props = defineProps({
     latitude: Number,
-    longitude: Number
+    longitude: Number,
+    gregorianDate: Object
 })
 
 const emits = defineEmits(['updatePrayerTimetable'])
@@ -93,9 +95,9 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="form-container">
+    <div class="form-container flex gap-4 flex-col">
         <div class="grid grid-cols-2 text-center justify-center">
-            <div class="grid gap-y-5 items-center">
+            <div class="grid gap-y-10 sm:gap-y-5 items-center">
                 <div class="inner-div-text">
                     <UFormGroup label="Fajr Angle:" :ui="{ label: { base: 'text-xl text-black font-semibold' } }" />
                 </div>
@@ -110,7 +112,7 @@ onMounted(() => {
                     <UFormGroup label="Month:" :ui="{ label: { base: 'text-xl text-black font-semibold' } }" />
                 </div>
             </div>
-            <div class="grid gap-y-5">
+            <div class="grid gap-y-10 sm:gap-y-5 justify-end">
                 <div>
                     <UInput type="number" v-model="fajrAngle" size="md"
                         :ui="{ rounded: 'rounded-lg', wrapper: 'max-w-[20rem]', color: { white: { outline: 'text-black' } } }" />
@@ -120,8 +122,8 @@ onMounted(() => {
                         option-attribute="name" size="md" :ui="{ wrapper: 'max-w-[20rem]', }" />
                 </div>
 
-                <div>
-                    <div class="form-radio-group">
+                <div class="flex w-max flex-end ml-auto">
+                    <div class="form-radio-group ">
                         <URadio v-for=" madhab of madhabs " :key="madhab.value" v-model="madhabMethod" v-bind="madhab"
                             :label="madhab.label" class="flex radio-option group" :ui="{
                         label: `flex cursor-pointer text-md px-3 py-1 rounded-lg hover:shadow-lg
@@ -131,7 +133,7 @@ onMounted(() => {
                         hover:bg-primary-50 group-has-[:checked]:hover:bg-primary-600
                         dark:hover:bg-primary-950 dark:ring-gray-700 dark:focus:ring-primary-400
                         dark:group-has-[:checked]:bg-primary-700 dark:group-has-[:checked]:ring-primary-700
-                        dark:group-has-[:checked]:hover:bg-primary-600 dark:group-has-[:checked]:hover:ring-primary-600`,
+                        dark:group-has-[:checked]:hover:bg-primary-600 dark:group-has-[:checked]:hover:ring-primary-600 `,
                         inner: 'm-0',
                     }" />
                     </div>
@@ -142,6 +144,8 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+        <p v-if="gregorianDate && moment(gregorianDate).isDST()" class="text-red-500">*Check your local masjid for Isha
+            time.*</p>
     </div>
 </template>
 
