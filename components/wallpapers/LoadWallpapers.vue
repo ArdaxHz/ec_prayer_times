@@ -34,7 +34,7 @@ function chooseTemplate(swiper) {
     <div class="template-chooser-container">
         <h1 class="text-2xl font-bold max-w-[400px]">Choose from the following {{ images.length }} designs for the
             background:</h1>
-        <p>Swipe left and right to change the background</p>
+        <p class="text-whtie text-sm font-light italic">Swipe left and right to change the background.</p>
         <div class="template-images-container rounded-lg">
             <Swiper class="swiper-cards rounded-lg"
                 :modules="[SwiperPagination, SwiperNavigation, SwiperPagination, SwiperScrollbar]" :slides-per-view="1"

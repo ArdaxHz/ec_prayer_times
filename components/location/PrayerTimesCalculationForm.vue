@@ -96,20 +96,21 @@ onMounted(() => {
 
 <template>
     <div class="form-container flex gap-4 flex-col">
+
         <div class="grid grid-cols-2 text-center justify-center">
             <div class="grid gap-y-10 sm:gap-y-5 items-center">
                 <div class="inner-div-text">
-                    <UFormGroup label="Fajr Angle:" :ui="{ label: { base: 'text-xl text-black font-semibold' } }" />
+                    <UFormGroup label="Fajr Angle:" :ui="{ label: { base: 'text-xl text-white font-semibold' } }" />
                 </div>
                 <div class="inner-div-text">
                     <UFormGroup label="Sighting Committee:"
-                        :ui="{ label: { base: 'text-xl text-black font-semibold' } }" />
+                        :ui="{ label: { base: 'text-xl text-white font-semibold' } }" />
                 </div>
                 <div class="inner-div-text">
-                    <UFormGroup label="Asr Time:" :ui="{ label: { base: 'text-xl text-black font-semibold' } }" />
+                    <UFormGroup label="Asr Time:" :ui="{ label: { base: 'text-xl text-white font-semibold' } }" />
                 </div>
                 <div class="inner-div-text">
-                    <UFormGroup label="Month:" :ui="{ label: { base: 'text-xl text-black font-semibold' } }" />
+                    <UFormGroup label="Month:" :ui="{ label: { base: 'text-xl text-white font-semibold' } }" />
                 </div>
             </div>
             <div class="grid gap-y-10 sm:gap-y-5 justify-end">
@@ -126,7 +127,7 @@ onMounted(() => {
                     <div class="form-radio-group ">
                         <URadio v-for=" madhab of madhabs " :key="madhab.value" v-model="madhabMethod" v-bind="madhab"
                             :label="madhab.label" class="flex radio-option group" :ui="{
-                        label: `flex cursor-pointer text-md px-3 py-1 rounded-lg hover:shadow-lg
+                        label: `flex cursor-pointer text-md px-3 py-1 rounded-lg hover:shadow-lg text-whtie
                         ring-1 ring-inset ring-gray-300 
                         focus:ring-2 focus:ring-primary-500
                         group-has-[:checked]:bg-primary-500 group-has-[:checked]:text-white group-has-[:checked]:ring-primary-500
@@ -144,6 +145,8 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+        <p class="text-whtie text-sm font-light italic">The timings will automatically update when a value is
+            changed.</p>
         <!-- <p v-if="gregorianDate && moment(gregorianDate).isDST()" class="text-red-500">*Check your local masjid for Isha
             time.*</p> -->
     </div>

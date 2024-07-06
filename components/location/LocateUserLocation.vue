@@ -89,6 +89,7 @@ onMounted(() => {
 
 <template>
     <UButton @click="getCurrentLocation"
-        class="buttons font-semibold text-xl hover:shadow-lg ring-gray-300 dark:ring-gray-700 " variant="outline">
+        class="buttons font-semibold text-xl hover:shadow-lg ring-gray-300 dark:ring-gray-700 text-whtie dark:text-white"
+        variant="outline">
         Locate</UButton>
 </template>
