@@ -1,5 +1,5 @@
 import moment from "moment-timezone";
-import { Coordinates, CalculationMethod, PrayerTimes } from 'adhan';
+import { Coordinates, CalculationMethod, PrayerTimes, HighLatitudeRule } from 'adhan';
 import HijrahDate from 'hijrah-date';
 
 const HijriMonths = {
@@ -58,12 +58,14 @@ export function calculateAdhanTimesDay(latitude, longitude, date, customParams) 
     const paramsToUse = CalculationMethod[customParams['CalculationMethod']] ? CalculationMethod[customParams['CalculationMethod']]() : CalculationMethod.MuslimWorldLeague();
     paramsToUse.fajrAngle = customParams['fajrAngle'] ? customParams['fajrAngle'] : 18;
     paramsToUse.madhab = customParams['madhab'] ? customParams['madhab'] : 'shafi';
+    paramsToUse.highLatitudeRule = HighLatitudeRule.recommended(coordinates);
 
     const prayerTimes = new PrayerTimes(coordinates, date, paramsToUse);
-    if (checkTimeWithinRange(prayerTimes.fajr, prayerTimes.isha, 5)) {
-        const newIshaTime = new Date(prayerTimes.maghrib.getTime() + 60 * 60 * 1000);
-        prayerTimes.isha = newIshaTime;
-    }
+
+    // if (moment(date).isDST()) {
+    //     const newIshaTime = new Date(prayerTimes.maghrib.getTime() + 60 * 60 * 1000);
+    //     prayerTimes.isha = newIshaTime;
+    // }
 
     const formattedDate = moment(date).tz("Europe/London").format('YYYY-MM-DD');
     const day = {}

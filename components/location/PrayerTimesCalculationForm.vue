@@ -144,8 +144,8 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <p v-if="gregorianDate && moment(gregorianDate).isDST()" class="text-red-500">*Check your local masjid for Isha
-            time.*</p>
+        <!-- <p v-if="gregorianDate && moment(gregorianDate).isDST()" class="text-red-500">*Check your local masjid for Isha
+            time.*</p> -->
     </div>
 </template>
 
