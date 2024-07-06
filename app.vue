@@ -63,6 +63,17 @@ useHead({
 <style>
 * {
   font-family: 'Vazirmatn', Helvetica, sans-serif;
+
+
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    --tw-bg-opacity: 1 !important;
+    background-color: rgb(22 31 40 / var(--tw-bg-opacity))
+      /* #161f28 */
+      !important;
+  }
 }
 
 .versioning {
