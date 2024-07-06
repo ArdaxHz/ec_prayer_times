@@ -1,6 +1,6 @@
 export default defineAppConfig({
     ui: {
-        primary: 'flax-smoke',
+        primary: 'eman-channel',
         gray: 'cool'
     }
 })

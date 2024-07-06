@@ -96,7 +96,6 @@ onMounted(() => {
 
 <template>
     <div class="form-container flex gap-4 flex-col">
-
         <div class="grid grid-cols-2 text-center justify-center">
             <div class="grid gap-y-10 sm:gap-y-5 items-center">
                 <div class="inner-div-text">
@@ -145,8 +144,6 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <p class="text-whtie text-sm font-light italic">The timings will automatically update when a value is
-            changed.</p>
         <!-- <p v-if="gregorianDate && moment(gregorianDate).isDST()" class="text-red-500">*Check your local masjid for Isha
             time.*</p> -->
     </div>

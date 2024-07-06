@@ -24,7 +24,7 @@ const templateChosen = ref(null);
 const emits = defineEmits(['updateTemplateChosen']);
 
 function chooseTemplate(swiper) {
-    templateChosen.value = images.value[swiper.activeIndex]
+    templateChosen.value = images.value[swiper.realIndex]
     emits('updateTemplateChosen', templateChosen.value)
 }
 </script>
@@ -32,14 +32,13 @@ function chooseTemplate(swiper) {
 
 <template>
     <div class="template-chooser-container">
-        <h1 class="text-2xl font-bold max-w-[400px]">Choose from the following {{ images.length }} designs for the
-            background:</h1>
-        <p class="text-whtie text-sm font-light italic">Swipe left and right to change the background.</p>
+        <h1 class="text-2xl font-bold max-w-[410px]">Choose from the following {{ images.length }} designs:</h1>
+        <p class="text-whtie text-sm font-light italic">Swipe left or right to change the background.</p>
         <div class="template-images-container rounded-lg">
-            <Swiper class="swiper-cards rounded-lg"
-                :modules="[SwiperPagination, SwiperNavigation, SwiperPagination, SwiperScrollbar]" :slides-per-view="1"
-                :loop="false" :effect="'cards'" @activeIndexChange="chooseTemplate" @init="chooseTemplate" navigation
-                :pagination="{ clickable: true }" :scrollbar="{ draggable: true }">
+            <Swiper class="swiper-cards rounded-lg" :modules="[SwiperPagination, SwiperNavigation, SwiperScrollbar]"
+                :slides-per-view="1" :loop="true" :loopedSlides="3" :effect="'cards'"
+                @activeIndexChange="chooseTemplate" @init="chooseTemplate" navigation :pagination="{ clickable: true }"
+                :scrollbar="{ draggable: true }">
                 <SwiperSlide v-for="(image, index) in images" :key="index" class="template-images-div rounded-lg">
                     <img :src="image.preview" :alt="'Image ' + index" />
                 </SwiperSlide>
@@ -85,5 +84,34 @@ function chooseTemplate(swiper) {
 
 .swiper-cards {
     width: 150px;
+}
+</style>
+
+<style>
+.swiper-button-prev {
+    left: 0;
+}
+
+.swiper-button-next {
+    right: 0;
+}
+
+.swiper-button-prev,
+.swiper-button-next {
+    color: rgb(var(--color-primary-400) / var(--tw-bg-opacity));
+}
+
+.swiper-horizontal>.swiper-scrollbar,
+.swiper-scrollbar.swiper-scrollbar-horizontal {
+    background-color: white;
+    height: 5px;
+}
+
+.swiper-scrollbar-drag {
+    background-color: rgb(var(--color-primary-400) / var(--tw-bg-opacity));
+}
+
+.swiper-pagination-bullets {
+    display: none;
 }
 </style>

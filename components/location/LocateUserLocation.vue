@@ -88,6 +88,9 @@ onMounted(() => {
 </script>
 
 <template>
+    <p v-if="!latitude" class="text-center text-md font-semibold text-red-500 italic">This calculator
+        needs location
+        access to work, please enable location access for this calculator to work properly.</p>
     <UButton @click="getCurrentLocation"
         class="buttons font-semibold text-xl hover:shadow-lg ring-gray-300 dark:ring-gray-700 text-whtie dark:text-white"
         variant="outline">
