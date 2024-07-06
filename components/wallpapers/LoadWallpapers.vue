@@ -38,7 +38,7 @@ function chooseTemplate(swiper) {
         <div class="template-images-container rounded-lg">
             <Swiper class="swiper-cards rounded-lg"
                 :modules="[SwiperPagination, SwiperNavigation, SwiperPagination, SwiperScrollbar]" :slides-per-view="1"
-                :loop="true" :effect="'cards'" @activeIndexChange="chooseTemplate" @init="chooseTemplate" navigation
+                :loop="false" :effect="'cards'" @activeIndexChange="chooseTemplate" @init="chooseTemplate" navigation
                 :pagination="{ clickable: true }" :scrollbar="{ draggable: true }">
                 <SwiperSlide v-for="(image, index) in images" :key="index" class="template-images-div rounded-lg">
                     <img :src="image.preview" :alt="'Image ' + index" />
