@@ -112,13 +112,23 @@ function downloadImage() {
             <UCard
                 :ui="{ ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800', header: { padding: 'p-4' } }">
                 <template #header>
-                    <div class="flex flex-row items-center justify-between px-1">
+                    <div class="flex flex-row items-center justify-between">
                         <p class="flex items-center font-semibold pt-2 pb-1 text-lg">{{ text }}</p>
                         <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1"
                             @click="isOpen = false" />
                     </div>
                 </template>
-                <img ref="DownloadImageRef" alt="img" :src="imageHref"></img>
+                <span class="flex gap-3 flex-col">
+                    <img ref="DownloadImageRef" alt="img" :src="imageHref" v-if="imageHref"></img>
+                    <p class="italic text-red-400 text-md font-semibold p" v-if="!imageHref">If you see this message,
+                        the
+                        image was not
+                        rendered
+                        correctly,
+                        please reload the
+                        page and try
+                        again.</p>
+                </span>
             </UCard>
         </UModal>
     </div>
