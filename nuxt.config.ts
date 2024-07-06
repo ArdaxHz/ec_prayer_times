@@ -7,7 +7,7 @@ export default defineNuxtConfig({
       'GOOGLE_API_KEY': JSON.stringify(process.env.GOOGLE_API_KEY)
     }
   },
-  modules: ['nuxt-swiper', 'nuxt3-notifications', "@vueuse/nuxt", '@nuxt/ui'],
+  modules: ['nuxt-swiper', 'nuxt3-notifications', "@vueuse/nuxt", '@nuxt/ui', 'nuxt-gtag'],
   nitro: {
     prerender: {
       autoSubfolderIndex: false
@@ -15,5 +15,8 @@ export default defineNuxtConfig({
   },
   colorMode: {
     preference: 'dark'
+  },
+  gtag: {
+    id: JSON.stringify(process.env.GOOGLE_ANALYTICS_KEY)
   }
 })
