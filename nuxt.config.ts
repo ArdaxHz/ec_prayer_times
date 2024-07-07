@@ -17,6 +17,6 @@ export default defineNuxtConfig({
     preference: 'dark'
   },
   gtag: {
-    id: JSON.stringify(process.env.GOOGLE_ANALYTICS_KEY)
+    id: 'G-5V36NE6QMX'
   }
 })

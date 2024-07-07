@@ -89,29 +89,29 @@ function chooseTemplate(swiper) {
 
 <style>
 .swiper-button-prev {
-    left: 0;
+    left: 0 !important;
 }
 
 .swiper-button-next {
-    right: 0;
+    right: 0 !important;
 }
 
 .swiper-button-prev,
 .swiper-button-next {
-    color: rgb(var(--color-primary-400) / var(--tw-bg-opacity));
+    color: rgb(var(--color-primary-400) / var(--tw-bg-opacity)) !important;
 }
 
 .swiper-horizontal>.swiper-scrollbar,
 .swiper-scrollbar.swiper-scrollbar-horizontal {
-    background-color: white;
-    height: 5px;
+    background-color: white !important;
+    height: 5px !important;
 }
 
 .swiper-scrollbar-drag {
-    background-color: rgb(var(--color-primary-400) / var(--tw-bg-opacity));
+    background-color: rgb(var(--color-primary-400) / var(--tw-bg-opacity)) !important;
 }
 
 .swiper-pagination-bullets {
-    display: none;
+    display: none !important;
 }
 </style>
