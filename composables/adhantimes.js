@@ -58,14 +58,17 @@ export function calculateAdhanTimesDay(latitude, longitude, date, customParams) 
     const paramsToUse = CalculationMethod[customParams['CalculationMethod']] ? CalculationMethod[customParams['CalculationMethod']]() : CalculationMethod.MuslimWorldLeague();
     paramsToUse.fajrAngle = customParams['fajrAngle'] ? customParams['fajrAngle'] : 18;
     paramsToUse.madhab = customParams['madhab'] ? customParams['madhab'] : 'shafi';
-    paramsToUse.highLatitudeRule = HighLatitudeRule.recommended(coordinates);
 
     const prayerTimes = new PrayerTimes(coordinates, date, paramsToUse);
+    paramsToUse.highLatitudeRule = HighLatitudeRule.recommended(coordinates);
+    const prayerTimesIshaChanged = new PrayerTimes(coordinates, date, paramsToUse);
 
     // if (moment(date).isDST()) {
     //     const newIshaTime = new Date(prayerTimes.maghrib.getTime() + 60 * 60 * 1000);
     //     prayerTimes.isha = newIshaTime;
     // }
+
+    prayerTimes.isha = prayerTimesIshaChanged.isha
 
     const formattedDate = moment(date).tz("Europe/London").format('YYYY-MM-DD');
     const day = {}
