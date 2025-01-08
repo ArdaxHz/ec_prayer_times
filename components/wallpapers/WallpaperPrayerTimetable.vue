@@ -4,6 +4,7 @@ import moment from "moment-timezone";
 const props = defineProps({
     prayerTimes: Object
 })
+
 </script>
 
 
@@ -23,7 +24,7 @@ const props = defineProps({
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(day, index) in prayerTimes">
+                <tr v-for="(day, index) in prayerTimes" :class="{'today' : moment(day.date).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD')}">
                     <td>{{ ("0" + moment(day.date).format('D')).slice(-2) }}</td>
                     <td>{{ ("0" + moment(day.hijri.date._dayOfMonth)).slice(-2) }}</td>
                     <td>{{ moment(day.fajr).format('LT') }}</td>
@@ -37,3 +38,11 @@ const props = defineProps({
         </table>
     </div>
 </template>
+
+
+<style>
+.today {
+    background-color: red !important;
+}
+
+</style>
