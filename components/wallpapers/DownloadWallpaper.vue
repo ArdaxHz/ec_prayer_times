@@ -65,7 +65,7 @@ function downloadImage() {
               return;
             }
             const link = URL.createObjectURL(blob);
-            sendDownload(link);
+            // sendDownload(link);
           })
         }, "image/jpeg")
   }
