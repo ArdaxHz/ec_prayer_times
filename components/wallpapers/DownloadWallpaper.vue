@@ -42,7 +42,7 @@ function sendDownload(url) {
 
 function saveCanvasAsJPG(canvas) {
   canvas.toBlob((blob) => {
-    const href =URL.createObjectURL(blob);
+    const href = URL.createObjectURL(blob);
     sendDownload(href)
     URL.revokeObjectURL(href);
   }, 'image/jpeg');
@@ -64,71 +64,102 @@ function downloadImage() {
     todayElements[0].classList.remove('today');
   }
 
-  // domtoimage.toJpeg(props.wallpaperRef.value, config)
-  //     .then(url => {
-  //       sendDownload(url);
-  //     })
-  //     .catch(function (error) {
-  //           console.error('oops, something went wrong!', error);
-  //           notify({
-  //             title: `Error downloading image ${error.code}.`,
-  //             text: error.message,
-  //             type: "error"
-  //           });
-  //         }
-  //     );
+  let dataUrl = domtoimage.toJpeg(props.wallpaperRef.value, config)
 
-  domtoimage.toPixelData(props.wallpaperRef.value)
-      .then(function (pixels) {
-        const width = props.wallpaperRef.value.scrollWidth;
-        const height = props.wallpaperRef.value.scrollHeight;
-
-        // Create a canvas to draw the image
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-
-        // Create an ImageData object
-        const imageData = ctx.createImageData(width, height);
-
-        // Populate the ImageData with pixel data
-        let isTransparent = true;
-        for (let y = 0; y < height; y++) {
-          for (let x = 0; x < width; x++) {
-            const pixelIndex = (y * width + x) * 4;
-            imageData.data[pixelIndex] = pixels[pixelIndex];     // Red
-            imageData.data[pixelIndex + 1] = pixels[pixelIndex + 1]; // Green
-            imageData.data[pixelIndex + 2] = pixels[pixelIndex + 2]; // Blue
-            imageData.data[pixelIndex + 3] = pixels[pixelIndex + 3]; // Alpha
-
-            // Check if any pixel is not transparent
-            if (pixels[pixelIndex + 3] !== 0) {
-              isTransparent = false;
+  if (props.usingSafari) {
+    html2canvas(props.wallpaperRef.value, config)
+        .then(function (canvas) {
+          canvas.toBlob(function (blob) {
+            if (blob == null) {
+              console.error('Canvas is empty.');
+              return;
             }
-          }
-        }
+            dataUrl = URL.createObjectURL(blob);
+          })
+        }, "image/jpeg")
+  }
 
-        console.log(props.wallpaperLink.template.href)
-
-        // If the image is transparent, render the background image
-        if (isTransparent) {
-          const backgroundImage = new Image();
-          backgroundImage.src = props.wallpaperLink.template.href; // Replace with your background image URL
-          backgroundImage.onload = function () {
-            ctx.drawImage(backgroundImage, 0, 0, width, height);
-            ctx.putImageData(imageData, 0, 0);
-            saveCanvasAsJPG(canvas);
-          };
-        } else {
-          // Draw the content directly
-          ctx.putImageData(imageData, 0, 0);
-          saveCanvasAsJPG(canvas);
+  domtoimage.toJpeg(props.wallpaperRef.value, config)
+      .then(url => {
+        const link = document.createElement('a')
+        link.download = `${props.wallpaperName}.jpg`
+        if (
+            // isFirefox
+            window.navigator.userAgent.indexOf('Firefox') !== -1 &&
+            window.navigator.userAgent.indexOf('Chrome') === -1
+        ) {
+          link.target = '_blank'
         }
+        // console.log(url);
+        link.href = url
+        imageHref.value = url;
+        isOpen.value = true;
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
       })
       .catch(function (error) {
-        console.error('Error rendering image:', error);
-      });
+            console.error('oops, something went wrong!', error);
+            notify({
+              title: `Error downloading image ${error.code}.`,
+              text: error.message,
+              type: "error"
+            });
+          }
+      );
+
+  // domtoimage.toPixelData(props.wallpaperRef.value)
+  //     .then(function (pixels) {
+  //       const width = props.wallpaperRef.value.scrollWidth;
+  //       const height = props.wallpaperRef.value.scrollHeight;
+  //
+  //       // Create a canvas to draw the image
+  //       const canvas = document.createElement('canvas');
+  //       canvas.width = width;
+  //       canvas.height = height;
+  //       const ctx = canvas.getContext('2d');
+  //
+  //       // Create an ImageData object
+  //       const imageData = ctx.createImageData(width, height);
+  //
+  //       // Populate the ImageData with pixel data
+  //       let isTransparent = true;
+  //       for (let y = 0; y < height; y++) {
+  //         for (let x = 0; x < width; x++) {
+  //           const pixelIndex = (y * width + x) * 4;
+  //           imageData.data[pixelIndex] = pixels[pixelIndex];     // Red
+  //           imageData.data[pixelIndex + 1] = pixels[pixelIndex + 1]; // Green
+  //           imageData.data[pixelIndex + 2] = pixels[pixelIndex + 2]; // Blue
+  //           imageData.data[pixelIndex + 3] = pixels[pixelIndex + 3]; // Alpha
+  //
+  //           // Check if any pixel is not transparent
+  //           if (pixels[pixelIndex + 3] !== 0) {
+  //             isTransparent = false;
+  //           }
+  //         }
+  //       }
+  //
+  //       console.log(props.wallpaperLink.template.href)
+  //
+  //       // If the image is transparent, render the background image
+  //       if (isTransparent) {
+  //         console.log('transparent');
+  //         const backgroundImage = new Image();
+  //         backgroundImage.src = props.wallpaperLink.template.href; // Replace with your background image URL
+  //         backgroundImage.onload = function () {
+  //           ctx.drawImage(backgroundImage, 0, 0, width, height);
+  //           ctx.putImageData(imageData, 0, 0);
+  //           saveCanvasAsJPG(canvas);
+  //         };
+  //       } else {
+  //         // Draw the content directly
+  //         ctx.putImageData(imageData, 0, 0);
+  //         saveCanvasAsJPG(canvas);
+  //       }
+  //     })
+  //     .catch(function (error) {
+  //       console.error('Error rendering image:', error);
+  //     });
 }
 </script>
 
