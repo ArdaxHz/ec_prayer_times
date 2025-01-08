@@ -33,7 +33,7 @@ function sendDownload(url) {
   // console.log(url);
   link.href = url
   imageHref.value = url;
-  isOpen.value = true;
+  // isOpen.value = true;
   document.body.appendChild(link)
   link.click()
   link.remove()
@@ -55,28 +55,59 @@ function downloadImage() {
     todayElements[0].classList.remove('today');
   }
 
-  if (props.usingSafari) {
-    console.log('using Safari');
-    html2canvas(props.wallpaperRef.value, config)
-        .then(function (canvas) {
-          const link = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")
-          sendDownload(link);
-        }, "image/jpeg")
-  } else{
-  console.log('using other browser');
-  domtoimage.toJpeg(props.wallpaperRef.value, config)
-      .then(url => {
-        sendDownload(url);
+  // domtoimage.toJpeg(props.wallpaperRef.value, config)
+  //     .then(url => {
+  //       sendDownload(url);
+  //     })
+  //     .catch(function (error) {
+  //           console.error('oops, something went wrong!', error);
+  //           notify({
+  //             title: `Error downloading image ${error.code}.`,
+  //             text: error.message,
+  //             type: "error"
+  //           });
+  //         }
+  //     );
+
+  domtoimage.toPixelData(props.wallpaperRef.value)
+      .then(function (pixels) {
+        const width = props.wallpaperRef.value.scrollWidth;
+        const height = props.wallpaperRef.value.scrollHeight;
+
+        // Create a canvas to draw the image
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+
+        // Create an ImageData object
+        const imageData = ctx.createImageData(width, height);
+
+        // Populate the ImageData with pixel data
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const pixelIndex = (y * width + x) * 4;
+            imageData.data[pixelIndex] = pixels[pixelIndex];     // Red
+            imageData.data[pixelIndex + 1] = pixels[pixelIndex + 1]; // Green
+            imageData.data[pixelIndex + 2] = pixels[pixelIndex + 2]; // Blue
+            imageData.data[pixelIndex + 3] = pixels[pixelIndex + 3]; // Alpha
+          }
+        }
+
+        // Draw the image data on the canvas
+        ctx.putImageData(imageData, 0, 0);
+
+        // Convert the canvas content to a JPG data URL
+        canvas.toBlob((blob) => {
+          // Create a link element for downloading the image
+          const href = URL.createObjectURL(blob)
+          sendDownload(href)
+          URL.revokeObjectURL(href);
+        }, 'image/jpeg');
       })
       .catch(function (error) {
-            console.error('oops, something went wrong!', error);
-            notify({
-              title: `Error downloading image ${error.code}.`,
-              text: error.message,
-              type: "error"
-            });
-          }
-      );}
+        console.error('Error rendering image:', error);
+      });
 }
 </script>
 
