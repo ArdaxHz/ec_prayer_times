@@ -59,31 +59,25 @@ function downloadImage() {
     console.log('using Safari');
     html2canvas(props.wallpaperRef.value, config)
         .then(function (canvas) {
-          canvas.toBlob(function (blob) {
-            if (blob == null) {
-              console.error('Canvas is empty.');
-              return;
-            }
-            const link = URL.createObjectURL(blob);
-            // sendDownload(link);
-          })
+          const link = canvas.toDataURL("image/jpeg")
+          sendDownload(link);
         }, "image/jpeg")
+  } else {
+    console.log('using other browser');
+    domtoimage.toJpeg(props.wallpaperRef.value, config)
+        .then(url => {
+          sendDownload(url);
+        })
+        .catch(function (error) {
+              console.error('oops, something went wrong!', error);
+              notify({
+                title: `Error downloading image ${error.code}.`,
+                text: error.message,
+                type: "error"
+              });
+            }
+        );
   }
-
-  console.log('using other browser');
-  domtoimage.toJpeg(props.wallpaperRef.value, config)
-      .then(url => {
-        sendDownload(url);
-      })
-      .catch(function (error) {
-            console.error('oops, something went wrong!', error);
-            notify({
-              title: `Error downloading image ${error.code}.`,
-              text: error.message,
-              type: "error"
-            });
-          }
-      );
 }
 </script>
 
@@ -113,9 +107,10 @@ function downloadImage() {
       </UCard>
     </UModal>
   </div>
-  <UButton class="buttons text-white dark:text-whtie font-semibold text-lg lg:text-xl shadow-lg hover:shadow-2xl hover:drop-shadow-2xl transform transition duration-500 hover:scale-105"
-           variant="solid"
-           @click="downloadImage">
+  <UButton
+      class="buttons text-white dark:text-whtie font-semibold text-lg lg:text-xl shadow-lg hover:shadow-2xl hover:drop-shadow-2xl transform transition duration-500 hover:scale-105"
+      variant="solid"
+      @click="downloadImage">
     Download Image
   </UButton>
 </template>
