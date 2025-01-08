@@ -110,7 +110,7 @@ watch(() => props.windowWidth, (newValue, _) => {
             <div class="button-group">
                 <LocationLocateUserLocation @updateUserLocation="updateLocation" />
                 <WallpapersDownloadWallpaper :wallpaperRef="wallpaperRef" :wallpaperName="wallpaperName"
-                    :usingSafari="usingSafari" />
+                    :usingSafari="usingSafari" :wallpaperLink="templateChosen"/>
             </div>
             <client-only>
                 <WallpapersLoadWallpapers @updateTemplateChosen="updateTemplateChosen" />

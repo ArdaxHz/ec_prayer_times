@@ -12,7 +12,8 @@ const props = defineProps({
     type: String,
     default: 'ec-prayer-timetable'
   },
-  usingSafari: Boolean
+  usingSafari: Boolean,
+  wallpaperLink: Object,
 });
 
 const DownloadImageRef = ref(null);
@@ -37,6 +38,14 @@ function sendDownload(url) {
   document.body.appendChild(link)
   link.click()
   link.remove()
+}
+
+function saveCanvasAsJPG(canvas) {
+  canvas.toBlob((blob) => {
+    const href =URL.createObjectURL(blob);
+    sendDownload(href)
+    URL.revokeObjectURL(href);
+  }, 'image/jpeg');
 }
 
 function downloadImage() {
@@ -84,6 +93,7 @@ function downloadImage() {
         const imageData = ctx.createImageData(width, height);
 
         // Populate the ImageData with pixel data
+        let isTransparent = true;
         for (let y = 0; y < height; y++) {
           for (let x = 0; x < width; x++) {
             const pixelIndex = (y * width + x) * 4;
@@ -91,19 +101,30 @@ function downloadImage() {
             imageData.data[pixelIndex + 1] = pixels[pixelIndex + 1]; // Green
             imageData.data[pixelIndex + 2] = pixels[pixelIndex + 2]; // Blue
             imageData.data[pixelIndex + 3] = pixels[pixelIndex + 3]; // Alpha
+
+            // Check if any pixel is not transparent
+            if (pixels[pixelIndex + 3] !== 0) {
+              isTransparent = false;
+            }
           }
         }
 
-        // Draw the image data on the canvas
-        ctx.putImageData(imageData, 0, 0);
+        console.log(props.wallpaperLink.template.href)
 
-        // Convert the canvas content to a JPG data URL
-        canvas.toBlob((blob) => {
-          // Create a link element for downloading the image
-          const href = URL.createObjectURL(blob)
-          sendDownload(href)
-          URL.revokeObjectURL(href);
-        }, 'image/jpeg');
+        // If the image is transparent, render the background image
+        if (isTransparent) {
+          const backgroundImage = new Image();
+          backgroundImage.src = props.wallpaperLink.template.href; // Replace with your background image URL
+          backgroundImage.onload = function () {
+            ctx.drawImage(backgroundImage, 0, 0, width, height);
+            ctx.putImageData(imageData, 0, 0);
+            saveCanvasAsJPG(canvas);
+          };
+        } else {
+          // Draw the content directly
+          ctx.putImageData(imageData, 0, 0);
+          saveCanvasAsJPG(canvas);
+        }
       })
       .catch(function (error) {
         console.error('Error rendering image:', error);
