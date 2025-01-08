@@ -20,33 +20,24 @@ const isOpen = ref(false);
 const imageHref = ref(null);
 const text = ref("If the image doesn't download automatically, right click > 'Save as' to download.");
 
-// function downloadImage() {
-//     toCanvas(props.wallpaperRef.value, { imageTimeout: 0, foreignObjectRendering: true })
-//         .then(function (canvas) {
-//             canvas.toBlob(function (blob) {
-//                 if (blob == null) {
-//                     console.error('Canvas is empty.');
-//                     return;
-//                 }
-//                 let url = URL.createObjectURL(blob);
-//                 window.navigator.clipboard.writeText(url)
-//                 imageHref.value = url;
-//                 console.log(url);
-//                 isOpen.value = true;
-//                 FileSaver.saveAs(blob, `${props.wallpaperName}.jpg`);
-//             })
-//         }, "image/jpeg")
-//         .catch(function (error) {
-//             console.error('oops, something went wrong!', error);
-//             text.value = 'Error downloading image.';
-//             isOpen.value = true;
-//             notify({
-//                 title: `Error downloading image ${error.code}.`,
-//                 text: error.message,
-//                 type: "error"
-//             });
-//         });
-// }
+function sendDownload(url) {
+  const link = document.createElement('a')
+  link.download = `${props.wallpaperName}.jpg`
+  if (
+      // isFirefox
+      window.navigator.userAgent.indexOf('Firefox') !== -1 &&
+      window.navigator.userAgent.indexOf('Chrome') === -1
+  ) {
+    link.target = '_blank'
+  }
+  // console.log(url);
+  link.href = url
+  imageHref.value = url;
+  isOpen.value = true;
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+}
 
 function downloadImage() {
   const config = {
@@ -64,24 +55,25 @@ function downloadImage() {
     todayElements[0].classList.remove('today');
   }
 
+  if (props.usingSafari) {
+    console.log('using Safari');
+    html2canvas(props.wallpaperRef.value, config)
+        .then(function (canvas) {
+          canvas.toBlob(function (blob) {
+            if (blob == null) {
+              console.error('Canvas is empty.');
+              return;
+            }
+            const link = URL.createObjectURL(blob);
+            sendDownload(link);
+          })
+        }, "image/jpeg")
+  }
+
+  console.log('using other browser');
   domtoimage.toJpeg(props.wallpaperRef.value, config)
       .then(url => {
-        const link = document.createElement('a')
-        link.download = `${props.wallpaperName}.jpg`
-        if (
-            // isFirefox
-            window.navigator.userAgent.indexOf('Firefox') !== -1 &&
-            window.navigator.userAgent.indexOf('Chrome') === -1
-        ) {
-          link.target = '_blank'
-        }
-        // console.log(url);
-        link.href = url
-        imageHref.value = url;
-        isOpen.value = true;
-        document.body.appendChild(link)
-        // link.click()
-        link.remove()
+        sendDownload(url);
       })
       .catch(function (error) {
             console.error('oops, something went wrong!', error);
