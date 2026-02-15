@@ -1,197 +1,134 @@
 <script setup>
 import html2canvas from 'html2canvas';
-
 import domtoimage from 'dom-to-image';
 
-
-const {notify} = useNotification();
+const { notify } = useNotification();
 
 const props = defineProps({
-  wallpaperRef: Object,
-  wallpaperName: {
-    type: String,
-    default: 'ec-prayer-timetable'
-  },
-  usingSafari: Boolean,
-  wallpaperLink: Object,
+    wallpaperRef: Object,
+    wallpaperName: {
+        type: String,
+        default: 'ec-prayer-timetable'
+    },
+    usingSafari: Boolean,
+    wallpaperLink: Object,
 });
 
-const DownloadImageRef = ref(null);
-const isOpen = ref(false);
-const imageHref = ref(null);
-const text = ref("If the image doesn't download automatically, right click > 'Save as' to download.");
+const isLoading = ref(false);
 
-function sendDownload(url) {
-  const link = document.createElement('a')
-  link.download = `${props.wallpaperName}.jpg`
-  if (
-      // isFirefox
-      window.navigator.userAgent.indexOf('Firefox') !== -1 &&
-      window.navigator.userAgent.indexOf('Chrome') === -1
-  ) {
-    link.target = '_blank'
-  }
-  // console.log(url);
-  link.href = url
-  imageHref.value = url;
-  // isOpen.value = true;
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
-}
+function triggerDownload(url, isObjectURL) {
+    const link = document.createElement('a');
+    link.download = `${props.wallpaperName}.jpg`;
+    if (
+        window.navigator.userAgent.indexOf('Firefox') !== -1 &&
+        window.navigator.userAgent.indexOf('Chrome') === -1
+    ) {
+        link.target = '_blank';
+    }
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 
-function saveCanvasAsJPG(canvas) {
-  canvas.toBlob((blob) => {
-    const href = URL.createObjectURL(blob);
-    sendDownload(href)
-    URL.revokeObjectURL(href);
-  }, 'image/jpeg');
+    if (isObjectURL) {
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
 }
 
 function downloadImage() {
-  const config = {
-    style: {
-      transformOrigin: 'top left',
-      alignItems: 'start',
-      justifyContent: 'start',
-    },
-    imageTimeout: 0, foreignObjectRendering: true
-  }
+    if (!props.wallpaperRef || !props.wallpaperRef.value) {
+        notify({
+            title: "Wallpaper not ready.",
+            text: "Please wait for the wallpaper to load before downloading.",
+            type: "warn"
+        });
+        return;
+    }
 
-  const todayElements = props.wallpaperRef.value.getElementsByClassName('today')
+    isLoading.value = true;
 
-  if (todayElements.length > 0) {
-    todayElements[0].classList.remove('today');
-  }
+    const config = {
+        style: {
+            transformOrigin: 'top left',
+            alignItems: 'start',
+            justifyContent: 'start',
+        },
+        imageTimeout: 0,
+        foreignObjectRendering: true
+    };
 
-  let dataUrl = domtoimage.toJpeg(props.wallpaperRef.value, config)
+    // Save reference to today element before removing class
+    const todayElements = props.wallpaperRef.value.getElementsByClassName('today');
+    const todayElement = todayElements.length > 0 ? todayElements[0] : null;
 
-  if (props.usingSafari) {
-    html2canvas(props.wallpaperRef.value, config)
-        .then(function (canvas) {
-          canvas.toBlob(function (blob) {
-            if (blob == null) {
-              console.error('Canvas is empty.');
-              return;
-            }
-            dataUrl = URL.createObjectURL(blob);
-          })
-        }, "image/jpeg")
-  }
+    if (todayElement) {
+        todayElement.classList.remove('today');
+    }
 
-  domtoimage.toJpeg(props.wallpaperRef.value, config)
-      .then(url => {
-        const link = document.createElement('a')
-        link.download = `${props.wallpaperName}.jpg`
-        if (
-            // isFirefox
-            window.navigator.userAgent.indexOf('Firefox') !== -1 &&
-            window.navigator.userAgent.indexOf('Chrome') === -1
-        ) {
-          link.target = '_blank'
-        }
-        // console.log(url);
-        link.href = url
-        imageHref.value = url;
-        isOpen.value = true;
-        document.body.appendChild(link)
-        link.click()
-        link.remove()
-      })
-      .catch(function (error) {
-            console.error('oops, something went wrong!', error);
-            notify({
-              title: `Error downloading image ${error.code}.`,
-              text: error.message,
-              type: "error"
+    if (props.usingSafari) {
+        // Safari path: use html2canvas
+        html2canvas(props.wallpaperRef.value, config)
+            .then(function (canvas) {
+                canvas.toBlob(function (blob) {
+                    if (!blob) {
+                        console.error('Canvas is empty.');
+                        notify({
+                            title: "Download failed.",
+                            text: "The image could not be rendered. Please try again.",
+                            type: "error"
+                        });
+                        return;
+                    }
+                    const url = URL.createObjectURL(blob);
+                    triggerDownload(url, true);
+                }, 'image/jpeg');
+            })
+            .catch(function (error) {
+                console.error('html2canvas error:', error);
+                notify({
+                    title: "Error downloading image.",
+                    text: error.message || "Unknown error occurred.",
+                    type: "error"
+                });
+            })
+            .finally(function () {
+                if (todayElement) {
+                    todayElement.classList.add('today');
+                }
+                isLoading.value = false;
             });
-          }
-      );
-
-  // domtoimage.toPixelData(props.wallpaperRef.value)
-  //     .then(function (pixels) {
-  //       const width = props.wallpaperRef.value.scrollWidth;
-  //       const height = props.wallpaperRef.value.scrollHeight;
-  //
-  //       // Create a canvas to draw the image
-  //       const canvas = document.createElement('canvas');
-  //       canvas.width = width;
-  //       canvas.height = height;
-  //       const ctx = canvas.getContext('2d');
-  //
-  //       // Create an ImageData object
-  //       const imageData = ctx.createImageData(width, height);
-  //
-  //       // Populate the ImageData with pixel data
-  //       let isTransparent = true;
-  //       for (let y = 0; y < height; y++) {
-  //         for (let x = 0; x < width; x++) {
-  //           const pixelIndex = (y * width + x) * 4;
-  //           imageData.data[pixelIndex] = pixels[pixelIndex];     // Red
-  //           imageData.data[pixelIndex + 1] = pixels[pixelIndex + 1]; // Green
-  //           imageData.data[pixelIndex + 2] = pixels[pixelIndex + 2]; // Blue
-  //           imageData.data[pixelIndex + 3] = pixels[pixelIndex + 3]; // Alpha
-  //
-  //           // Check if any pixel is not transparent
-  //           if (pixels[pixelIndex + 3] !== 0) {
-  //             isTransparent = false;
-  //           }
-  //         }
-  //       }
-  //
-  //       console.log(props.wallpaperLink.template.href)
-  //
-  //       // If the image is transparent, render the background image
-  //       if (isTransparent) {
-  //         console.log('transparent');
-  //         const backgroundImage = new Image();
-  //         backgroundImage.src = props.wallpaperLink.template.href; // Replace with your background image URL
-  //         backgroundImage.onload = function () {
-  //           ctx.drawImage(backgroundImage, 0, 0, width, height);
-  //           ctx.putImageData(imageData, 0, 0);
-  //           saveCanvasAsJPG(canvas);
-  //         };
-  //       } else {
-  //         // Draw the content directly
-  //         ctx.putImageData(imageData, 0, 0);
-  //         saveCanvasAsJPG(canvas);
-  //       }
-  //     })
-  //     .catch(function (error) {
-  //       console.error('Error rendering image:', error);
-  //     });
+    } else {
+        // Non-Safari path: use dom-to-image
+        domtoimage.toJpeg(props.wallpaperRef.value, config)
+            .then(function (url) {
+                triggerDownload(url, false);
+            })
+            .catch(function (error) {
+                console.error('dom-to-image error:', error);
+                notify({
+                    title: "Error downloading image.",
+                    text: error.message || "Unknown error occurred.",
+                    type: "error"
+                });
+            })
+            .finally(function () {
+                if (todayElement) {
+                    todayElement.classList.add('today');
+                }
+                isLoading.value = false;
+            });
+    }
 }
 </script>
 
 <template>
-  <div>
-    <UModal v-model="isOpen">
-      <UCard
-          :ui="{ ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800', header: { padding: 'p-4' } }">
-        <template #header>
-          <div class="flex flex-row items-center justify-between">
-            <p class="flex items-center font-semibold pt-2 pb-1 text-lg">{{ text }}</p>
-            <UButton class="-my-1" color="gray" icon="i-heroicons-x-mark-20-solid" variant="ghost"
-                     @click="isOpen = false"/>
-          </div>
-        </template>
-        <span class="flex gap-3 flex-col">
-                    <img v-if="imageHref" ref="DownloadImageRef" :src="imageHref" alt="img"></img>
-                    <p v-if="!imageHref" class="italic text-red-400 text-md font-semibold p">If you see this message,
-                        the
-                        image was not
-                        rendered
-                        correctly,
-                        please reload the
-                        page and try
-                        again.</p>
-                </span>
-      </UCard>
-    </UModal>
-  </div>
-  <UButton class="buttons text-white dark:text-whtie font-semibold text-lg lg:text-xl shadow-lg hover:shadow-2xl hover:drop-shadow-2xl transform transition duration-500 hover:scale-105"
-           variant="solid"
-           @click="downloadImage">
-    Download Image
-  </UButton>
+    <UButton
+        class="buttons text-white dark:text-whtie font-semibold text-lg lg:text-xl shadow-lg hover:shadow-2xl hover:drop-shadow-2xl transform transition duration-500 hover:scale-105"
+        variant="solid"
+        :loading="isLoading"
+        :disabled="isLoading"
+        @click="downloadImage"
+    >
+        Download Image
+    </UButton>
 </template>

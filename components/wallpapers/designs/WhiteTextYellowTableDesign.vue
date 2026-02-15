@@ -10,8 +10,55 @@ const props = defineProps({
     gregorianYear: String,
     hijriMonthShort: String,
     hijriMonthLong: String,
-    hijriYear: String
+    hijriYear: String,
+    gregorianMonthRange: {
+        type: String,
+        default: ''
+    },
+    wallpaperOptions: {
+        type: Object,
+        default: () => ({})
+    }
 });
+
+const titleFont = computed(() => props.wallpaperOptions.titleFont || 'Gilroy');
+const titleTextColor = computed(() => props.wallpaperOptions.titleTextColor || '#FEC04A');
+const tableBlur = computed(() => props.wallpaperOptions.tableBlur || 0);
+const tableBlurOpacity = computed(() => props.wallpaperOptions.tableBlurOpacity || 0);
+const titleFontScale = computed(() => props.wallpaperOptions.titleFontSize || 1.0);
+const titleFontWeight = computed(() => props.wallpaperOptions.titleFontWeight || 900);
+
+const titleStyle = computed(() => ({
+    fontFamily: titleFont.value,
+    color: titleTextColor.value,
+    fontWeight: titleFontWeight.value,
+}));
+
+const monthsStyle = computed(() => ({
+    fontFamily: titleFont.value,
+    color: titleTextColor.value,
+    fontWeight: titleFontWeight.value,
+}));
+
+const hasBlur = computed(() => tableBlur.value > 0 || tableBlurOpacity.value > 0);
+
+const blurStyle = computed(() => {
+    if (!hasBlur.value) return {};
+    const styles = {
+        padding: '0.75rem',
+        borderRadius: '1.25rem',
+    };
+    if (tableBlur.value > 0) {
+        styles.backdropFilter = `blur(${tableBlur.value}px)`;
+        styles.webkitBackdropFilter = `blur(${tableBlur.value}px)`;
+    }
+    const opacity = tableBlurOpacity.value > 0 ? tableBlurOpacity.value : 0.15;
+    styles.backgroundColor = `rgba(255, 255, 255, ${opacity})`;
+    return styles;
+});
+
+const areaFontSize = computed(() => `${3.6 * titleFontScale.value}rem`);
+const monthsFontSize = computed(() => `${2.8 * titleFontScale.value}rem`);
 
 onMounted(() => {
     city.value = props.location.city
@@ -24,25 +71,34 @@ onMounted(() => {
     <div class="typeface-design-container">
         <div class="formatted-location-container">
             <div class="center-location-container">
-                <h1 class="area">{{ area }}</h1>
-                <!-- <h1 class="country">{{ country }}</h1> -->
-                <div class="months" :key="gregorianMonth" v-if="gregorianMonth">
-                    <span>{{ gregorianMonth }} {{ gregorianYear }}</span>
-                    <div class="hijri-month-display" :key="hijriYear">
+                <h1 class="area" :style="{ ...titleStyle, fontSize: areaFontSize }">{{ area }}</h1>
+                <div class="months" :style="{ ...monthsStyle, fontSize: monthsFontSize }" :key="hijriMonthLong" v-if="hijriMonthLong">
+                    <span>{{ hijriMonthLong }} {{ hijriYear }}</span>
+                    <div class="hijri-month-display" v-if="gregorianMonthRange || gregorianMonth" :key="gregorianMonth">
                         <span>&nbsp|&nbsp</span>
-                        <span>{{ hijriMonthLong }} {{ hijriYear }}</span>
+                        <span>{{ gregorianMonthRange || `${gregorianMonth} ${gregorianYear}` }}</span>
                     </div>
+                </div>
+                <div class="months" :style="{ ...monthsStyle, fontSize: monthsFontSize }" :key="gregorianMonth" v-else-if="gregorianMonth">
+                    <span>{{ gregorianMonth }} {{ gregorianYear }}</span>
                 </div>
             </div>
         </div>
-        <WallpapersWallpaperPrayerTimetable :key="props.prayerTimes" :prayerTimes="props.prayerTimes" />
+        <div class="table-blur-wrapper" :style="blurStyle">
+            <WallpapersWallpaperPrayerTimetable :key="props.prayerTimes" :prayerTimes="props.prayerTimes"
+                :wallpaperOptions="props.wallpaperOptions" />
+        </div>
     </div>
 </template>
 
 <style scoped>
 .typeface-design-container {
-    transform: translate(0, 19rem);
     width: 100%;
+}
+
+.table-blur-wrapper {
+    width: fit-content;
+    margin-inline: auto;
 }
 
 .formatted-location-container {
@@ -71,30 +127,13 @@ onMounted(() => {
     align-items: center;
 }
 
-.large-city {
-    font-family: 'Gilroy';
-    font-size: 5rem;
-    line-height: 1.2;
-    font-weight: 800;
-    color: white;
-    text-align: center;
-    width: min-content;
-    position: absolute;
-    left: -250px;
-    overflow: hidden;
-    opacity: 0.05;
-    transform: translate(0, -50%);
-}
-
 .area {
-    width: 900px;
+    width: 100%;
+    max-width: 900px;
 
-    font-family: 'Gilroy';
     text-transform: uppercase;
     font-size: 3.6rem;
     line-height: 0.9;
-    font-weight: 900;
-    color: white;
     overflow: hidden;
     margin-inline: auto;
     text-align: center;
@@ -104,33 +143,17 @@ onMounted(() => {
     text-overflow: ellipsis;
 }
 
-.country {
-    font-family: 'Gilroy';
-    font-size: 1.5rem;
-    line-height: 1.3;
-    font-weight: 400;
-    color: white;
-    overflow: hidden;
-    margin-inline: auto;
-    text-align: center;
-    justify-content: center;
-}
-
 .months {
     padding-top: 10px;
     display: flex;
     flex-direction: row;
-    font-family: 'Gilroy';
     font-size: 2.8rem;
     line-height: 1;
-    font-weight: 300;
-    color: white;
     overflow: hidden;
     margin-inline: auto;
     text-align: center;
     justify-content: center;
     font-stretch: expanded;
-    color: #FEC04A;
 }
 
 .hijri-month-display {
@@ -153,7 +176,6 @@ onMounted(() => {
     text-align: center;
     z-index: 5;
     overflow: hidden;
-    text-align: center;
 }
 
 tbody:before {
@@ -178,7 +200,6 @@ thead {
     text-transform: uppercase;
     color: #011631;
     margin-bottom: 1rem;
-    /* border-right: 1px solid #000; */
 }
 
 .prayer-times-table-header-row th:first-child {
@@ -203,13 +224,5 @@ thead {
     line-height: 2.2rem;
     overflow: hidden;
     white-space: nowrap;
-}
-
-.prayer-times-table tr:nth-child(even) {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.prayer-times-table tr:nth-child(odd) {
-    background-color: rgba(0, 0, 0, 0.1);
 }
 </style>

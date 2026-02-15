@@ -10,7 +10,11 @@ const props = defineProps({
     gregorianDate: Object,
     hijriDate: Object,
     phoneImageHeight: Number,
-    borderRadius: Number
+    borderRadius: Number,
+    wallpaperOptions: {
+        type: Object,
+        default: () => ({})
+    }
 });
 
 watch(() => props.scaleFactor, (newValue, _) => {
@@ -37,7 +41,7 @@ watch(() => props.borderRadius, (newValue, _) => {
     <div class="preview-container" ref="previewContainer">
         <div class="scaled-component" ref="scaledWallpaperComponent">
             <WallpaperOutput :location="location" :templateChosen="templateChosen" :prayerTimes="prayerTimes"
-                :gregorianDate="gregorianDate" :hijriDate="hijriDate" />
+                :gregorianDate="gregorianDate" :hijriDate="hijriDate" :wallpaperOptions="wallpaperOptions" />
         </div>
     </div>
 </template>

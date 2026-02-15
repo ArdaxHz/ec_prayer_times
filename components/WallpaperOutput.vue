@@ -1,6 +1,5 @@
 <script setup>
 import moment from "moment";
-import HijrahDate from 'hijrah-date';
 
 const templateChosen = ref({ preview: null, template: null, typeface: "WallpapersDesignsWhiteTextYellowTableDesign" });
 const wallpaperRef = ref(null);
@@ -19,10 +18,32 @@ const props = defineProps({
     templateChosen: Object,
     prayerTimes: Object,
     gregorianDate: Object,
-    hijriDate: Object
+    hijriDate: Object,
+    wallpaperOptions: {
+        type: Object,
+        default: () => ({})
+    }
 });
 
 const emits = defineEmits(['updateWallpaperContainerRef', 'updateWallpaperRef']);
+
+// Compute gregorian month range from prayer times keys (first/last date)
+const gregorianMonthRange = computed(() => {
+    if (!props.prayerTimes) return '';
+    const keys = Object.keys(props.prayerTimes);
+    if (keys.length === 0) return '';
+
+    const firstDate = moment(keys[0]);
+    const lastDate = moment(keys[keys.length - 1]);
+
+    if (firstDate.format('MMM YYYY') === lastDate.format('MMM YYYY')) {
+        return firstDate.format('MMM YYYY');
+    }
+    if (firstDate.format('YYYY') === lastDate.format('YYYY')) {
+        return `${firstDate.format('MMM')} - ${lastDate.format('MMM YYYY')}`;
+    }
+    return `${firstDate.format('MMM YYYY')} - ${lastDate.format('MMM YYYY')}`;
+});
 
 watch(() => props.templateChosen, (newValue, _) => {
     if (newValue) {
@@ -47,7 +68,7 @@ watch(() => props.hijriDate, (newValue, _) => {
     if (newValue) {
         hijriMonthShort.value = newValue.month_short
         hijriMonthLong.value = newValue.month_long
-        hijriYear.value = String(new HijrahDate(newValue.date).getFullYear())
+        hijriYear.value = String(newValue.date.getFullYear())
     }
 });
 
@@ -55,11 +76,16 @@ onMounted(() => {
     emits('updateWallpaperRef', wallpaperRef);
 });
 
+const TABLE_TOP_RATIO = 680 / 2048;
+
 function handleImageLoad(ref) {
-    wallpaperText.value.style.width = ref.target.width != 0 ? `${ref.target.width}px` : wallpaperText.value.style.width;
-    wallpaperText.value.style.height = ref.target.height != 0 ? `${ref.target.height}px` : wallpaperText.value.style.height;
-    emits('updateWallpaperContainerRef', { 'offsetWidth': ref.target.width, 'offsetHeight': ref.target.height });
-    scaleText(ref.target.width);
+    const imgW = ref.target.width || 950;
+    const imgH = ref.target.height || 2048;
+    wallpaperText.value.style.width = `${imgW}px`;
+    wallpaperText.value.style.height = `${imgH}px`;
+    wallpaperText.value.style.paddingTop = `${Math.round(imgH * TABLE_TOP_RATIO)}px`;
+    emits('updateWallpaperContainerRef', { 'offsetWidth': imgW, 'offsetHeight': imgH });
+    scaleText(imgW);
 }
 
 function scaleText(width) {
@@ -78,11 +104,8 @@ function scaleText(width) {
                 <div class="wallpaper-text" ref="wallpaperText">
                     <WallpapersDesignsWhiteTextYellowTableDesign :key="location" :location="location"
                         :prayerTimes="props.prayerTimes" :gregorianMonth="gregorianMonth" :gregorianYear="gregorianYear"
-                        :hijriMonthShort="hijriMonthShort" :hijriYear="hijriYear" :hijriMonthLong="hijriMonthLong" />
-                    <!-- <WallpapersSwitchCorrectWallpaperDesign :typeface="templateChosen.typeface" :key="location"
-                        :location="location" :prayerTimes="props.prayerTimes" :gregorianMonth="gregorianMonth"
-                        :gregorianYear="gregorianYear" :hijriMonthShort="hijriMonthShort" :hijriYear="hijriYear"
-                        :hijriMonthLong="hijriMonthLong" /> -->
+                        :hijriMonthShort="hijriMonthShort" :hijriYear="hijriYear" :hijriMonthLong="hijriMonthLong"
+                        :gregorianMonthRange="gregorianMonthRange" :wallpaperOptions="props.wallpaperOptions" />
                 </div>
                 <img class="wallpaper-image" :src="templateChosen.template" alt="wallpaper" ref="wallpaperImage"
                     :key="templateChosen" @load="handleImageLoad" />
@@ -101,7 +124,7 @@ function scaleText(width) {
     width: 950px;
     height: 2048px;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
 }
 

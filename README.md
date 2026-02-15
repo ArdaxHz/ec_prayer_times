@@ -1,75 +1,57 @@
-# Nuxt 3 Minimal Starter
+# Salah Times Wallpaper Generator
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Calculates Islamic prayer (Salah) times for a given location and generates downloadable phone wallpapers with prayer timetables.
+
+**Live version:** [salah.emanchannel.tv](https://salah.emanchannel.tv)
 
 ## Setup
 
-Make sure to install the dependencies:
+Install dependencies:
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
+Create a `.env` file with a Google Geocoding API key (used for reverse geocoding coordinates to location names):
 
-Start the development server on `http://localhost:3000`:
+```
+GOOGLE_API_KEY=your_key_here
+```
+
+## Development
 
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
+
+Opens at `http://localhost:3000`.
 
 ## Production
 
-Build the application for production:
-
 ```bash
-# npm
 npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+npm run preview
 ```
 
-Locally preview production build:
+### Docker
 
 ```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+docker compose up
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Serves on port `5164`.
+
+## Adding Wallpaper Backgrounds
+
+Background images are auto-discovered from `assets/wallpapers/`. To add a new wallpaper:
+
+1. Place your image file in `assets/wallpapers/`
+2. Supported formats: `.png`, `.jpg`, `.jpeg`
+3. The image will automatically appear in the wallpaper selector carousel
+
+### Recommended Dimensions
+
+- **1297 x 2796 px** — This is the standard size used by most included wallpapers. The timetable overlay scales proportionally to match the image dimensions, so other sizes will work but this size gives the best results.
+- Use a **portrait** aspect ratio (roughly 9:19 or similar phone wallpaper proportions).
+- The top ~40% of the image is visible above the prayer timetable, so place any key visual elements there.
+- Keep the bottom ~60% relatively dark or uniform, as the timetable overlays this area.
