@@ -52,7 +52,7 @@ useHead({
 </script>
 
 <template>
-  <div ref="rootContainer" class="root-container mx-auto min-w-[5rem] min-h-[80svh] w-[90svw] max-h-[90svh]">
+  <div ref="rootContainer" class="root-container mx-auto min-w-[5rem] min-h-[80vh] w-[90%] sm:w-[85%] md:w-[80%] lg:w-[75%] max-w-[1400px]">
     <NuxtNotifications position="top left" :speed="500" />
     <div class="py-10 px-4">
       <!-- <h1 class="safari-site-notif mb-8 px-10 text-center text-2xl font-extrabold text-red-500" v-if="usingSafari">
@@ -61,7 +61,9 @@ useHead({
       </h1> -->
       <HomePage :windowWidth="windowWidth" :windowHeight="windowHeight" :usingSafari="usingSafari" />
     </div>
-    <p class="versioning">v0.1.0</p>
+    <footer class="footer">
+      <p>Built by <a href="https://github.com/ArdaxHz" target="_blank" class="footer-link">Ardax</a> · <a href="https://github.com/ArdaxHz/ec_prayer_times" target="_blank" class="footer-link">Source</a> · 2026</p>
+    </footer>
   </div>
 </template>
 
@@ -93,14 +95,23 @@ useHead({
   }
 }
 
-.versioning {
-  position: absolute;
-  bottom: 0;
-  right: 50%;
-  padding: 1rem;
-  font-size: 1rem;
-  scale: 0.7;
-  display: none;
+.footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  margin-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.footer-link {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 
