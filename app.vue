@@ -1,19 +1,12 @@
 <script setup>
+import { isSafariBrowser } from '~/composables/browser';
+
 const rootContainer = ref(null);
 const windowWidth = ref(0);
 const windowHeight = ref(0);
 const usingSafari = ref(false);
 
 const { notify } = useNotification();
-
-const isSafari = () => {
-  const ua = navigator.userAgent.toLowerCase();
-  const iOS = !!ua.match(/iP(ad|od|hone)/i);
-  const webkit = !!ua.match(/WebKit/i);
-  const notsafari = ua.match(/(?:chrome|firefox|opera|brave|CriOS|FxiOS)/i);
-
-  return (iOS || webkit) && !notsafari;
-};
 
 useResizeObserver(rootContainer, (entries) => {
   const entry = entries[0];
@@ -29,17 +22,8 @@ onMounted(() => {
     duration: 5000
   });
 
-  if (isSafari()) {
+  if (isSafariBrowser()) {
     usingSafari.value = true;
-    console.log("Using Safari.")
-
-    notify({
-      title: "Safari detected, image downloading may not work.",
-      text: "Image downloading does not work correctly on Safari, please use a different browser if the image downloaded is blank.",
-      type: "warn",
-      duration: -1,
-      closeOnClick: false
-    });
   }
 });
 
