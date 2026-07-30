@@ -33,8 +33,14 @@ export const HijriMonths = {
     ]
 }
 
-export function convertToHijri(date) {
-    const hijriDate = new HijrahDate(date);
+export function convertToHijri(date, hijriConvention = 'midnight') {
+    // When convention is 'maghrib', the Islamic day starts at maghrib (sunset),
+    // so the hijri date displayed for a given Gregorian day is actually the next hijri day
+    let gregorianDate = new Date(date);
+    if (hijriConvention === 'maghrib') {
+        gregorianDate.setDate(gregorianDate.getDate() + 1);
+    }
+    const hijriDate = new HijrahDate(gregorianDate);
     // getMonth() is 0-based: 0=Muharram, 7=Sha'ban, 8=Ramadan, 11=Dhul-Hijjah
     return { "date": hijriDate, "month_long": HijriMonths.STANDALONEMONTH[hijriDate.getMonth()], "month_short": HijriMonths.SHORTMONTH[hijriDate.getMonth()] };
 }
@@ -90,7 +96,7 @@ export function calculateAdhanTimesDay(latitude, longitude, date, customParams) 
 
     const formattedDate = moment(date).tz("Europe/London").format('YYYY-MM-DD');
     const day = {}
-    day[formattedDate] = { ...prayerTimes, 'hijri': convertToHijri(formattedDate) }
+    day[formattedDate] = { ...prayerTimes, 'hijri': convertToHijri(formattedDate, customParams['hijriConvention']) }
     return day;
 }
 

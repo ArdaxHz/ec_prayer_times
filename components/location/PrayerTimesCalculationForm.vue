@@ -8,7 +8,7 @@ const props = defineProps({
     gregorianDate: Object
 })
 
-const emits = defineEmits(['updatePrayerTimetable', 'updateSelectedHijriMonth'])
+const emits = defineEmits(['updatePrayerTimetable', 'updateSelectedHijriMonth', 'updateUse24Hour'])
 
 const fajrAngle = ref(18);
 const sightingCommittee = ref('MuslimWorldLeague');
@@ -36,6 +36,16 @@ const gregorianMonths = ref((function () {
     });
     return rest.concat(gone);
 })());
+
+// Hijri date convention
+const hijriConvention = ref('midnight');
+const hijriConventionOptions = [
+    { value: 'midnight', label: 'Midnight' },
+    { value: 'maghrib', label: 'Maghrib' },
+];
+
+// Time format
+const use24Hour = ref(false);
 
 // Advanced settings
 const showAdvanced = ref(false);
@@ -110,6 +120,7 @@ function buildCustomParams() {
         highLatitudeRule: highLatitudeRule.value,
         polarCircleResolution: polarCircleResolution.value,
         rounding: rounding.value,
+        hijriConvention: hijriConvention.value,
     };
 
     if (isMoonsightingCommittee.value) {
@@ -188,11 +199,15 @@ function autoCalculate() {
 // Watch all reactive form values
 watch(
     [fajrAngle, sightingCommittee, madhabMethod, selectedHijriMonthIndex, formMonthSelect, calendarType,
-     highLatitudeRule, polarCircleResolution, shafaq, rounding,
+     hijriConvention, highLatitudeRule, polarCircleResolution, shafaq, rounding,
      ishaAngle, maghribAngle,
      adjFajr, adjSunrise, adjDhuhr, adjAsr, adjMaghrib, adjIsha],
     () => { calculateMonth(); }
 );
+
+watch(use24Hour, (val) => {
+    emits('updateUse24Hour', val);
+});
 
 watch(() => props.latitude, () => {
     autoCalculate()
@@ -227,7 +242,7 @@ onMounted(() => {
                         :ui="{ label: { base: 'text-lg sm:text-xl text-white font-semibold' } }" />
                 </div>
                 <div class="form-input-cell">
-                    <UInputMenu v-model="sightingCommittee" :options="sightingCommitteeList" value-attribute="id"
+                    <USelectMenu v-model="sightingCommittee" :options="sightingCommitteeList" value-attribute="id"
                         option-attribute="name" size="md" />
                 </div>
             </div>
@@ -305,6 +320,15 @@ onMounted(() => {
             </UButton>
 
             <div v-if="showAdvanced" class="mt-3 flex flex-col gap-4 pl-2 border-l-2 border-gray-600">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                    <span class="text-sm text-white font-semibold">24-Hour Format:</span>
+                    <UToggle v-model="use24Hour" />
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                    <span class="text-sm text-white font-semibold">Hijri Changes At:</span>
+                    <USelectMenu v-model="hijriConvention" :options="hijriConventionOptions" value-attribute="value"
+                        option-attribute="label" size="sm" />
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                     <span class="text-sm text-white font-semibold">High Latitude Rule:</span>
                     <USelectMenu v-model="highLatitudeRule" :options="highLatitudeRules" value-attribute="value"

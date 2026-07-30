@@ -9,10 +9,14 @@ const { notify } = useNotification();
 const isSafari = () => {
   const ua = navigator.userAgent.toLowerCase();
   const iOS = !!ua.match(/iP(ad|od|hone)/i);
-  const webkit = !!ua.match(/WebKit/i);
-  const notsafari = ua.match(/(?:chrome|firefox|opera|brave|CriOS|FxiOS)/i);
 
-  return (iOS || webkit) && !notsafari;
+  // All iOS browsers use WebKit engine, so always use html2canvas on iOS
+  if (iOS) return true;
+
+  const webkit = !!ua.match(/WebKit/i);
+  const notSafariDesktop = ua.match(/(?:chrome|firefox|opera|brave)/i);
+
+  return webkit && !notSafariDesktop;
 };
 
 useResizeObserver(rootContainer, (entries) => {

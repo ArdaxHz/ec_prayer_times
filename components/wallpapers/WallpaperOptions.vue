@@ -24,9 +24,21 @@ const useAlternatingColors = ref(true);
 const evenRowColor = ref('#FFFFFF1A');
 const oddRowColor = ref('#0000001A');
 
-// Table blur
+// Table blur — opacity range -1 to 1: negative = black overlay, positive = white overlay
 const tableBlur = ref(0);
 const tableBlurOpacity = ref(0);
+
+// Table vertical offset (px)
+const tableOffset = ref(0);
+
+// Table spacing
+const columnSpacing = ref(0.85);
+const rowSpacing = ref(0.25);
+
+// Title drop shadow
+const titleDropShadow = ref(false);
+const titleShadowBlur = ref(12);
+const titleShadowOpacity = ref(1.0);
 
 // Fonts
 const headerFont = ref('Gilroy');
@@ -57,9 +69,6 @@ const colDhuhr = ref(true);
 const colAsr = ref(true);
 const colMaghrib = ref(true);
 const colIsha = ref(true);
-
-// Time format
-const use24Hour = ref(false);
 
 // Day range
 const dayRange = ref('full');
@@ -99,6 +108,12 @@ function buildOptions() {
         oddRowColor: oddRowColor.value,
         tableBlur: tableBlur.value,
         tableBlurOpacity: tableBlurOpacity.value,
+        tableOffset: tableOffset.value,
+        columnSpacing: columnSpacing.value,
+        rowSpacing: rowSpacing.value,
+        titleDropShadow: titleDropShadow.value,
+        titleShadowBlur: titleShadowBlur.value,
+        titleShadowOpacity: titleShadowOpacity.value,
         headerFont: headerFont.value,
         titleFont: titleFont.value,
         timingsFont: timingsFont.value,
@@ -111,7 +126,6 @@ function buildOptions() {
         highlightWhiteDays: highlightWhiteDays.value,
         whiteDaysColor: whiteDaysColor.value,
         todayColor: todayColor.value,
-        use24Hour: use24Hour.value,
         columns: {
             date: colDate.value,
             hijri: colHijri.value,
@@ -132,9 +146,10 @@ function buildOptions() {
 watch(
     [headerBgColor, headerTextColor, titleTextColor, titleBgColor, timingsTextColor, tableBgColor,
      useAlternatingColors, evenRowColor, oddRowColor,
-     tableBlur, tableBlurOpacity,
+     tableBlur, tableBlurOpacity, tableOffset, columnSpacing, rowSpacing,
+     titleDropShadow, titleShadowBlur, titleShadowOpacity,
      headerFont, titleFont, timingsFont, titleFontWeight, titleFontSize, headerFontSize, timingsFontSize,
-     highlightMondayThursday, mondayThursdayColor, highlightWhiteDays, whiteDaysColor, todayColor, use24Hour,
+     highlightMondayThursday, mondayThursdayColor, highlightWhiteDays, whiteDaysColor, todayColor,
      colDate, colHijri, colFajr, colSunrise, colDhuhr, colAsr, colMaghrib, colIsha,
      dayRange, dayRangeStart, dayRangeEnd, daySingle],
     () => {
@@ -212,6 +227,20 @@ onMounted(() => {
                         <input type="range" v-model.number="timingsFontSize" min="0.5" max="2.0" step="0.1"
                             class="w-full accent-primary-500" />
                     </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                        <span class="text-sm text-white font-semibold">Title Drop Shadow:</span>
+                        <UToggle v-model="titleDropShadow" />
+                    </div>
+                    <div v-if="titleDropShadow" class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                        <span class="text-sm text-white font-semibold">Shadow Blur: {{ titleShadowBlur }}px</span>
+                        <input type="range" v-model.number="titleShadowBlur" min="0" max="20" step="1"
+                            class="w-full accent-primary-500" />
+                    </div>
+                    <div v-if="titleDropShadow" class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                        <span class="text-sm text-white font-semibold">Shadow Strength: {{ titleShadowOpacity.toFixed(1) }}</span>
+                        <input type="range" v-model.number="titleShadowOpacity" min="0" max="1" step="0.1"
+                            class="w-full accent-primary-500" />
+                    </div>
                 </div>
             </div>
 
@@ -257,6 +286,31 @@ onMounted(() => {
                 </UButton>
                 <div v-if="showTableStyle" class="mt-2 flex flex-col gap-3 pl-2 border-l-2 border-gray-700">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                        <span class="text-sm text-white font-semibold">Table Blur: {{ tableBlur }}px</span>
+                        <input type="range" v-model.number="tableBlur" min="0" max="40" step="1"
+                            class="w-full accent-primary-500" />
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                        <span class="text-sm text-white font-semibold">Overlay: {{ tableBlurOpacity > 0 ? 'White' : tableBlurOpacity < 0 ? 'Black' : 'None' }} {{ Math.abs(tableBlurOpacity).toFixed(1) }}</span>
+                        <input type="range" v-model.number="tableBlurOpacity" min="-1" max="1" step="0.05"
+                            class="w-full accent-primary-500" />
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                        <span class="text-sm text-white font-semibold">Table Offset: {{ tableOffset }}px</span>
+                        <input type="range" v-model.number="tableOffset" min="-300" max="300" step="10"
+                            class="w-full accent-primary-500" />
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                        <span class="text-sm text-white font-semibold">Column Spacing: {{ columnSpacing.toFixed(2) }}rem</span>
+                        <input type="range" v-model.number="columnSpacing" min="0" max="2" step="0.05"
+                            class="w-full accent-primary-500" />
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                        <span class="text-sm text-white font-semibold">Row Spacing: {{ rowSpacing.toFixed(2) }}rem</span>
+                        <input type="range" v-model.number="rowSpacing" min="0" max="2" step="0.05"
+                            class="w-full accent-primary-500" />
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                         <span class="text-sm text-white font-semibold">Alternating Row Colors:</span>
                         <UToggle v-model="useAlternatingColors" />
                     </div>
@@ -273,20 +327,6 @@ onMounted(() => {
                         <UButton variant="outline" color="gray" size="xs" @click="resetAlternatingColors">
                             Reset Row Colors
                         </UButton>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-                        <span class="text-sm text-white font-semibold">24-Hour Format:</span>
-                        <UToggle v-model="use24Hour" />
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-                        <span class="text-sm text-white font-semibold">Table Blur: {{ tableBlur }}px</span>
-                        <input type="range" v-model.number="tableBlur" min="0" max="20" step="1"
-                            class="w-full accent-primary-500" />
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-                        <span class="text-sm text-white font-semibold">Blur Opacity: {{ tableBlurOpacity.toFixed(1) }}</span>
-                        <input type="range" v-model.number="tableBlurOpacity" min="0" max="1" step="0.1"
-                            class="w-full accent-primary-500" />
                     </div>
                 </div>
             </div>

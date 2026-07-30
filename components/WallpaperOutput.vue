@@ -77,13 +77,25 @@ onMounted(() => {
 });
 
 const TABLE_TOP_RATIO = 680 / 2048;
+const imgDimensions = ref({ w: 950, h: 2048 });
+
+const tableOffset = computed(() => props.wallpaperOptions?.tableOffset || 0);
+
+function applyPaddingTop() {
+    if (!wallpaperText.value) return;
+    const basePadding = Math.round(imgDimensions.value.h * TABLE_TOP_RATIO);
+    wallpaperText.value.style.paddingTop = `${basePadding + tableOffset.value}px`;
+}
+
+watch(tableOffset, () => applyPaddingTop());
 
 function handleImageLoad(ref) {
     const imgW = ref.target.width || 950;
     const imgH = ref.target.height || 2048;
+    imgDimensions.value = { w: imgW, h: imgH };
     wallpaperText.value.style.width = `${imgW}px`;
     wallpaperText.value.style.height = `${imgH}px`;
-    wallpaperText.value.style.paddingTop = `${Math.round(imgH * TABLE_TOP_RATIO)}px`;
+    applyPaddingTop();
     emits('updateWallpaperContainerRef', { 'offsetWidth': imgW, 'offsetHeight': imgH });
     scaleText(imgW);
 }
@@ -136,7 +148,6 @@ function scaleText(width) {
     position: relative;
     width: max-content;
     height: min-content;
-    overflow: hidden;
 }
 
 .wallpaper-container {

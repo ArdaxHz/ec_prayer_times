@@ -19,7 +19,7 @@ No test runner or linter is configured.
 
 ## Environment Variables
 
-- `GOOGLE_API_KEY` — Required for reverse geocoding via Google Geocoding API. Exposed to the client through Vite's `define` in `nuxt.config.ts`.
+- `GOOGLE_API_KEY` — Required for reverse geocoding. Exposed to the client through Vite's `define` in `nuxt.config.ts`. The key must have the **Maps JavaScript API** enabled (geocoding runs through the JS SDK's `Geocoder`, not the Geocoding web service).
 
 ## Architecture
 
@@ -38,8 +38,8 @@ No test runner or linter is configured.
 **State management:** No Vuex/Pinia. All state lives in `HomePage.vue` and flows down via props, back up via emits.
 
 **Composables (`composables/`):**
-- `adhantimes.js` — Wraps the `adhan` library; calculates prayer times with ALL configurable params: method, madhab, fajr/isha/maghrib angles, high latitude rule, polar circle resolution, shafaq, rounding, and per-prayer adjustments. Supports both Gregorian month (`calculateAdhanMonth`) and Hijri month (`calculateAdhanHijriMonth`) calculation. Provides `getNext12HijriMonths()` for month selection. Converts dates to Hijri calendar via `hijrah-date`.
-- `geocodingapi.js` — Reverse geocoding (coordinates → location name) via Google Geocoding API.
+- `adhantimes.js` — Wraps the `adhan` library; calculates prayer times with ALL configurable params: method, madhab, fajr/isha/maghrib angles, high latitude rule, polar circle resolution, shafaq, rounding, and per-prayer adjustments. Supports both Gregorian month (`calculateAdhanMonth`) and Hijri month (`calculateAdhanHijriMonth`) calculation. Provides `getNext12HijriMonths()` for month selection. Converts dates to Hijri calendar via `hijrah-date`; `convertToHijri(date, hijriConvention)` accepts `'midnight'` (default) or `'maghrib'`, the latter shifting the hijri date forward a day since the Islamic day starts at sunset.
+- `geocodingapi.js` — Reverse geocoding (coordinates → location name) via the Google Maps JavaScript API `Geocoder` (the script is lazy-injected on first use and the geocoder promise memoized). Results are cached in `localStorage` under `geocode_cache` for 8 hours, keyed by coordinates rounded to 3 decimal places (~111m).
 - `googlefonts.js` — Lazy Google Fonts loader; `loadGoogleFont(fontFamily)` injects `<link>` tags on demand with `display=swap`; exports `allFontOptions`, `localFontOptions`, `googleFontOptions`.
 - `helpers.js` — Utility functions (array shuffling).
 
@@ -47,25 +47,30 @@ No test runner or linter is configured.
 1. User grants geolocation → browser API gets coordinates → Google Geocoding API resolves location name
 2. User configures calculation parameters in `PrayerTimesCalculationForm.vue`:
    - Main form: fajr angle, sighting committee, asr method (madhab), calendar type, month
-   - Advanced settings (collapsible): high latitude rule, polar circle resolution, shafaq (conditional on MoonsightingCommittee), rounding, isha/maghrib angle overrides, per-prayer minute adjustments (nested collapsible)
+   - Advanced settings (collapsible): 24-hour format, hijri day boundary (midnight/maghrib), high latitude rule, polar circle resolution, shafaq (conditional on MoonsightingCommittee), rounding, isha/maghrib angle overrides, per-prayer minute adjustments (nested collapsible)
+   - The 24-hour toggle is presentational, so it is emitted via `updateUse24Hour` and merged into `wallpaperOptions` rather than into the calculation params
 3. User configures wallpaper appearance in `WallpaperOptions.vue`:
-   - Fonts (header/title/timings, Google Fonts lazy-loaded), font size scale
+   - Fonts (header/title/timings, Google Fonts lazy-loaded), font size scale, title drop shadow
    - Colors (header bg/text, title text, timings text)
-   - Table style (alternating row colors, backdrop blur, blur opacity)
+   - Table style (backdrop blur, signed overlay, vertical offset, column/row spacing, alternating row colors)
    - Highlights (Monday/Thursday, White Days 13-14-15 Hijri, today color)
    - Column visibility (toggle date, hijri, fajr, sunrise, dhuhr, asr, maghrib, isha)
    - Day range (full month, date range, single day)
 4. `adhan` library computes prayer times locally for the selected month (no API call)
 5. Wallpaper component renders prayer table over a background image with customized styling
-6. `DownloadWallpaper.vue` captures the DOM node as a downloadable JPEG; filename uses `area-country_hijrimonth-year` format
+6. `DownloadWallpaper.vue` captures the DOM node as a downloadable JPEG and injects a JPEG `COM` metadata segment (source, generator, URL, date) after the SOI marker; filename uses `area-country-hijrimonth-year-ec-prayer-timetable` format
 
-**wallpaperOptions object:** A single reactive object containing all wallpaper customization. Flows from `WallpaperOptions.vue` → `HomePage.vue` → `WallpaperOutput.vue`/`WallpaperPreview.vue` → `WhiteTextYellowTableDesign.vue` → `WallpaperPrayerTimetable.vue`.
+**wallpaperOptions object:** A single reactive object containing all wallpaper customization. Flows from `WallpaperOptions.vue` → `HomePage.vue` → `WallpaperOutput.vue`/`WallpaperPreview.vue` → `WhiteTextYellowTableDesign.vue` → `WallpaperPrayerTimetable.vue`. `HomePage.vue` merges partial updates into the existing object (`{ ...current, ...incoming }`) so that options owned by other components — notably `use24Hour` from the calculation form — are not clobbered.
 
 Key properties:
 - `headerBgColor`, `headerTextColor`, `titleTextColor`, `timingsTextColor` — dynamic colors
 - `headerFont`, `titleFont`, `timingsFont` — per-element font family (local or Google Font)
 - `fontSizeScale` — multiplier for all font sizes (0.5–2.0)
-- `tableBlur`, `tableBlurOpacity` — backdrop-filter blur and overlay opacity
+- `tableBlur` — backdrop-filter blur radius in px (0–40)
+- `tableBlurOpacity` — signed overlay strength (-1…1): negative paints a black overlay, positive a white one, 0 none
+- `tableOffset` — px added to the table's computed `padding-top` in `WallpaperOutput.vue`, shifting the table up/down
+- `columnSpacing`, `rowSpacing` — `padding-inline`/`padding-block` in rem applied inline to header and body cells
+- `titleDropShadow`, `titleShadowBlur`, `titleShadowOpacity` — `text-shadow` on the location title and month labels
 - `useAlternatingColors`, `evenRowColor`, `oddRowColor` — alternating row styling
 - `highlightMondayThursday`, `mondayThursdayColor` — fasting day highlights
 - `highlightWhiteDays`, `whiteDaysColor` — 13th/14th/15th Hijri day highlights
@@ -88,7 +93,8 @@ Key properties:
 Safari requires special handling throughout the codebase:
 - **Image capture:** dom-to-image fails on Safari; falls back to html2canvas (proper if/else branching, not both running)
 - **Download behavior:** Firefox opens downloads in a new tab (`_blank`)
-- Safari detection is done via user-agent string in `app.vue`
+- Safari detection is done via user-agent string in `app.vue`; every iOS browser is WebKit under the hood, so any iOS UA takes the html2canvas path regardless of the browser brand
+- **Today highlight:** the today row is styled by the `.today` CSS class (fed by a `--today-color` custom property), not an inline style, so `DownloadWallpaper.vue` can strip the class before capture and restore it afterwards
 
 ## Responsive Design
 

@@ -23,24 +23,36 @@ const props = defineProps({
 
 const titleFont = computed(() => props.wallpaperOptions.titleFont || 'Gilroy');
 const titleTextColor = computed(() => props.wallpaperOptions.titleTextColor || '#FEC04A');
-const tableBlur = computed(() => props.wallpaperOptions.tableBlur || 0);
-const tableBlurOpacity = computed(() => props.wallpaperOptions.tableBlurOpacity || 0);
+const tableBlur = computed(() => props.wallpaperOptions.tableBlur ?? 0);
+const tableBlurOpacity = computed(() => props.wallpaperOptions.tableBlurOpacity ?? 0);
 const titleFontScale = computed(() => props.wallpaperOptions.titleFontSize || 1.0);
 const titleFontWeight = computed(() => props.wallpaperOptions.titleFontWeight || 900);
+const titleDropShadow = computed(() => props.wallpaperOptions.titleDropShadow ?? false);
+const titleShadowBlur = computed(() => props.wallpaperOptions.titleShadowBlur ?? 12);
+const titleShadowOpacity = computed(() => props.wallpaperOptions.titleShadowOpacity ?? 1.0);
+
+const titleTextShadow = computed(() => {
+    if (!titleDropShadow.value) return 'none';
+    const blur = titleShadowBlur.value;
+    const opacity = titleShadowOpacity.value;
+    return `0 2px ${blur}px rgba(0,0,0,${opacity}), 0 0 ${blur * 2}px rgba(0,0,0,${opacity * 0.5})`;
+});
 
 const titleStyle = computed(() => ({
     fontFamily: titleFont.value,
     color: titleTextColor.value,
     fontWeight: titleFontWeight.value,
+    textShadow: titleTextShadow.value,
 }));
 
 const monthsStyle = computed(() => ({
     fontFamily: titleFont.value,
     color: titleTextColor.value,
     fontWeight: titleFontWeight.value,
+    textShadow: titleTextShadow.value,
 }));
 
-const hasBlur = computed(() => tableBlur.value > 0 || tableBlurOpacity.value > 0);
+const hasBlur = computed(() => tableBlur.value > 0 || tableBlurOpacity.value !== 0);
 
 const blurStyle = computed(() => {
     if (!hasBlur.value) return {};
@@ -52,8 +64,10 @@ const blurStyle = computed(() => {
         styles.backdropFilter = `blur(${tableBlur.value}px)`;
         styles.webkitBackdropFilter = `blur(${tableBlur.value}px)`;
     }
-    const opacity = tableBlurOpacity.value > 0 ? tableBlurOpacity.value : 0.15;
-    styles.backgroundColor = `rgba(255, 255, 255, ${opacity})`;
+    // Negative = black overlay, positive = white overlay
+    const absOpacity = Math.abs(tableBlurOpacity.value);
+    const color = tableBlurOpacity.value >= 0 ? '255, 255, 255' : '0, 0, 0';
+    styles.backgroundColor = `rgba(${color}, ${absOpacity})`;
     return styles;
 });
 
@@ -171,6 +185,7 @@ onMounted(() => {
 
 .prayer-times-table {
     border-collapse: collapse;
+    border-spacing: 0;
     color: white;
     margin: auto;
     text-align: center;
@@ -179,10 +194,9 @@ onMounted(() => {
 }
 
 tbody:before {
-    content: "@";
+    content: "";
     display: block;
-    line-height: 7px;
-    text-indent: -99999px;
+    height: 7px;
 }
 
 thead {
@@ -215,6 +229,11 @@ thead {
     border-right: none;
 }
 
+.prayer-times-table tr {
+    border: none;
+    outline: none;
+}
+
 .prayer-times-table td {
     font-family: 'Gilroy';
     padding-block: 0.25rem;
@@ -224,5 +243,7 @@ thead {
     line-height: 2.2rem;
     overflow: hidden;
     white-space: nowrap;
+    border: none;
+    outline: none;
 }
 </style>

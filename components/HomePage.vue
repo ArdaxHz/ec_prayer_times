@@ -24,6 +24,12 @@ const wallpaperOptions = ref({
     oddRowColor: '#0000001A',
     tableBlur: 0,
     tableBlurOpacity: 0,
+    tableOffset: 0,
+    columnSpacing: 0.85,
+    rowSpacing: 0.25,
+    titleDropShadow: false,
+    titleShadowBlur: 12,
+    titleShadowOpacity: 1.0,
     headerFont: 'Gilroy',
     titleFont: 'Gilroy',
     timingsFont: 'Gilroy',
@@ -88,21 +94,20 @@ watch(() => prayerTimes.value, (newValue, _) => {
 });
 
 const wallpaperName = computed(() => {
-    let name = 'ec-prayer-timetable';
-    if (location.value && location.value.area && location.value.country) {
-        const area = location.value.area;
-        const country = location.value.country;
-        if (selectedHijriMonth.value) {
-            const hijriLabel = selectedHijriMonth.value.label || '';
-            name = `${area}-${country}_${hijriLabel}`
-                .toLowerCase()
-                .replace(/\s+/g, '-')
-                .replace(/[^a-z0-9_-]/g, '');
-        } else {
-            name = `${area}-${country}_${moment(gregorianDate.value).format('MM-YY')}_prayer-timetable`.toLowerCase();
-        }
+    const hasLocation = location.value && location.value.area && location.value.country;
+    let monthPart = '';
+
+    if (selectedHijriMonth.value) {
+        monthPart = selectedHijriMonth.value.label || '';
+    } else if (gregorianDate.value) {
+        monthPart = moment(gregorianDate.value).format('MMMM-YYYY');
     }
-    return name;
+
+    const parts = hasLocation
+        ? [`${location.value.area}-${location.value.country}`, monthPart, 'ec-prayer-timetable']
+        : [monthPart, 'ec-prayer-timetable'];
+
+    return parts.filter(Boolean).join('-').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 });
 
 function updatePrayerTimes(prayer) {
@@ -119,8 +124,12 @@ function updateSelectedHijriMonth(data) {
     selectedHijriMonth.value = data;
 }
 
+function updateUse24Hour(val) {
+    wallpaperOptions.value = { ...wallpaperOptions.value, use24Hour: val };
+}
+
 function updateWallpaperOptions(opts) {
-    wallpaperOptions.value = opts;
+    wallpaperOptions.value = { ...wallpaperOptions.value, ...opts };
 }
 
 function updateWallpaperRef(ref) {
@@ -173,7 +182,8 @@ watch(() => props.windowWidth, (newValue, _) => {
                 <LocationPrayerTimesCalculationForm :latitude="latitude" :longitude="longitude"
                     :gregorianDate="gregorianDate"
                     @updatePrayerTimetable="updatePrayerTimes"
-                    @updateSelectedHijriMonth="updateSelectedHijriMonth" />
+                    @updateSelectedHijriMonth="updateSelectedHijriMonth"
+                    @updateUse24Hour="updateUse24Hour" />
             </div>
             <WallpapersWallpaperOptions @updateWallpaperOptions="updateWallpaperOptions" />
             <div class="button-group">

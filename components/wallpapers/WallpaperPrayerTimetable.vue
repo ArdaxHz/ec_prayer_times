@@ -27,17 +27,23 @@ const todayColor = computed(() => opts.value.todayColor || '#FF0000');
 const headerFontSize = computed(() => `${2.2 * headerFontScale.value}rem`);
 const tdFontSize = computed(() => `${1.7 * timingsFontScale.value}rem`);
 
+const columnSpacing = computed(() => opts.value.columnSpacing ?? 0.85);
+const rowSpacing = computed(() => opts.value.rowSpacing ?? 0.25);
+
 const headerStyle = computed(() => ({
     fontFamily: headerFont.value,
     backgroundColor: headerBgColor.value,
     color: headerTextColor.value,
     fontSize: headerFontSize.value,
+    paddingInline: `${columnSpacing.value}rem`,
 }));
 
 const tdStyle = computed(() => ({
     fontFamily: timingsFont.value,
     color: timingsTextColor.value,
     fontSize: tdFontSize.value,
+    paddingInline: `${columnSpacing.value}rem`,
+    paddingBlock: `${rowSpacing.value}rem`,
 }));
 
 // Column definitions
@@ -77,13 +83,16 @@ const filteredPrayerTimes = computed(() => {
     return days.filter((_, i) => i + 1 >= start && i + 1 <= end);
 });
 
+function isToday(day) {
+    const today = moment().format('YYYY-MM-DD');
+    return moment(day.date).format('YYYY-MM-DD') === today;
+}
+
 function getRowStyle(day, index) {
     const style = {};
-    const today = moment().format('YYYY-MM-DD');
-    const isToday = moment(day.date).format('YYYY-MM-DD') === today;
 
-    if (isToday) {
-        style.backgroundColor = todayColor.value;
+    // Today is handled via CSS class, not inline style (so it can be removed before download)
+    if (isToday(day)) {
         return style;
     }
 
@@ -134,7 +143,7 @@ function getCellValue(day, colKey) {
 
 
 <template>
-    <div class="prayer-times-table-container">
+    <div class="prayer-times-table-container" :style="{ '--today-color': todayColor }">
         <table v-if="prayerTimes" class="prayer-times-table">
             <thead>
                 <tr class="prayer-times-table-header-row">
@@ -143,6 +152,7 @@ function getCellValue(day, colKey) {
             </thead>
             <tbody>
                 <tr v-for="(day, index) in filteredPrayerTimes" :key="index"
+                    :class="{ today: isToday(day) }"
                     :style="getRowStyle(day, index)">
                     <td v-for="col in visibleColumns" :key="col.key" :style="tdStyle">
                         {{ getCellValue(day, col.key) }}
@@ -155,4 +165,7 @@ function getCellValue(day, colKey) {
 
 
 <style>
+.prayer-times-table tr.today {
+    background-color: var(--today-color, #FF0000);
+}
 </style>
