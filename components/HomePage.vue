@@ -1,5 +1,5 @@
 <script setup>
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { convertToHijri } from '~/composables/adhantimes';
 
 const latitude = ref(null);
@@ -67,7 +67,7 @@ const props = defineProps({
 });
 
 watch(() => prayerTimes.value, (newValue, _) => {
-    const today = moment().format('YYYY-MM-DD');
+    const today = dayjs().format('YYYY-MM-DD');
     const prayerTimesToday = newValue[today];
 
     if (prayerTimesToday) {
@@ -100,7 +100,7 @@ const wallpaperName = computed(() => {
     if (selectedHijriMonth.value) {
         monthPart = selectedHijriMonth.value.label || '';
     } else if (gregorianDate.value) {
-        monthPart = moment(gregorianDate.value).format('MMMM-YYYY');
+        monthPart = dayjs(gregorianDate.value).format('MMMM-YYYY');
     }
 
     const parts = hasLocation

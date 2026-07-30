@@ -4,7 +4,7 @@ const windowWidth = ref(0);
 const windowHeight = ref(0);
 const usingSafari = ref(false);
 
-const { notify } = useNotification();
+const toast = useToast();
 
 const isSafari = () => {
   const ua = navigator.userAgent.toLowerCase();
@@ -27,9 +27,9 @@ useResizeObserver(rootContainer, (entries) => {
 });
 
 onMounted(() => {
-  notify({
+  toast.add({
     title: "Please enable location access.",
-    text: "This calculator needs location access to work, please enable location access for this calculator to work properly.",
+    description: "This calculator needs location access to work, please enable location access for this calculator to work properly.",
     duration: 5000
   });
 
@@ -37,12 +37,12 @@ onMounted(() => {
     usingSafari.value = true;
     console.log("Using Safari.")
 
-    notify({
+    toast.add({
       title: "Safari detected, image downloading may not work.",
-      text: "Image downloading does not work correctly on Safari, please use a different browser if the image downloaded is blank.",
-      type: "warn",
-      duration: -1,
-      closeOnClick: false
+      description: "Image downloading does not work correctly on Safari, please use a different browser if the image downloaded is blank.",
+      color: "warning",
+      // 0 keeps the toast up until dismissed
+      duration: 0
     });
   }
 });
@@ -56,19 +56,16 @@ useHead({
 </script>
 
 <template>
-  <div ref="rootContainer" class="root-container mx-auto min-w-[5rem] min-h-[80vh] w-[90%] sm:w-[85%] md:w-[80%] lg:w-[75%] max-w-[1400px]">
-    <NuxtNotifications position="top left" :speed="500" />
-    <div class="py-10 px-4">
-      <!-- <h1 class="safari-site-notif mb-8 px-10 text-center text-2xl font-extrabold text-red-500" v-if="usingSafari">
-        Image downloading does not work correctly on Safari, please use a different browser if the image downloaded is
-        blank.
-      </h1> -->
-      <HomePage :windowWidth="windowWidth" :windowHeight="windowHeight" :usingSafari="usingSafari" />
+  <UApp :toaster="{ position: 'top-left' }">
+    <div ref="rootContainer" class="root-container mx-auto min-w-[5rem] min-h-[80vh] w-[90%] sm:w-[85%] md:w-[80%] lg:w-[75%] max-w-[1400px]">
+      <div class="py-10 px-4">
+        <HomePage :windowWidth="windowWidth" :windowHeight="windowHeight" :usingSafari="usingSafari" />
+      </div>
+      <footer class="footer">
+        <p>Built by <a href="https://nevra.tech" target="_blank" class="footer-link">nevra.tech</a> · 2026</p>
+      </footer>
     </div>
-    <footer class="footer">
-      <p>Built by <a href="https://github.com/ArdaxHz" target="_blank" class="footer-link">Ardax</a> · <a href="https://github.com/ArdaxHz/ec_prayer_times" target="_blank" class="footer-link">Source</a> · 2026</p>
-    </footer>
-  </div>
+  </UApp>
 </template>
 
 
@@ -77,26 +74,11 @@ useHead({
   font-family: 'Vazirmatn', Helvetica, sans-serif;
 }
 
-@media (prefers-color-scheme: light) {
-  body {
-    --tw-bg-opacity: 1 !important;
-    background-color: rgb(22 31 40 / var(--tw-bg-opacity))
-      /* #161f28 */
-      !important;
-
-    color: white;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    --tw-bg-opacity: 1 !important;
-    background-color: rgb(22 31 40 / var(--tw-bg-opacity))
-      /* #161f28 */
-      !important;
-
-    color: white;
-  }
+/* The app is dark-only regardless of the OS preference. Tailwind v4 dropped
+   --tw-bg-opacity, so the brand background is written out directly. */
+body {
+  background-color: #161f28 !important;
+  color: white;
 }
 
 .footer {
@@ -158,9 +140,5 @@ useHead({
   font-family: 'Gilroy';
   src: url('@/assets/fonts/Gilroy Heavy.ttf') format("truetype");
   font-weight: 900;
-}
-
-.safari-site-notif {
-  font-family: 'Gilroy';
 }
 </style>

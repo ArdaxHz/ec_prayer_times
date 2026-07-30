@@ -2,7 +2,7 @@
 import html2canvas from 'html2canvas';
 import domtoimage from 'dom-to-image';
 
-const { notify } = useNotification();
+const toast = useToast();
 
 const props = defineProps({
     wallpaperRef: Object,
@@ -69,10 +69,10 @@ function triggerDownload(url, isObjectURL) {
 
 function downloadImage() {
     if (!props.wallpaperRef || !props.wallpaperRef.value) {
-        notify({
+        toast.add({
             title: "Wallpaper not ready.",
-            text: "Please wait for the wallpaper to load before downloading.",
-            type: "warn"
+            description: "Please wait for the wallpaper to load before downloading.",
+            color: "warning"
         });
         return;
     }
@@ -110,10 +110,10 @@ function downloadImage() {
                 canvas.toBlob(function (blob) {
                     if (!blob) {
                         console.error('Canvas is empty.');
-                        notify({
+                        toast.add({
                             title: "Download failed.",
-                            text: "The image could not be rendered. Please try again.",
-                            type: "error"
+                            description: "The image could not be rendered. Please try again.",
+                            color: "error"
                         });
                         return;
                     }
@@ -125,10 +125,10 @@ function downloadImage() {
             })
             .catch(function (error) {
                 console.error('html2canvas error:', error);
-                notify({
+                toast.add({
                     title: "Error downloading image.",
-                    text: error.message || "Unknown error occurred.",
-                    type: "error"
+                    description: error.message || "Unknown error occurred.",
+                    color: "error"
                 });
             })
             .finally(function () {
@@ -152,10 +152,10 @@ function downloadImage() {
             })
             .catch(function (error) {
                 console.error('dom-to-image error:', error);
-                notify({
+                toast.add({
                     title: "Error downloading image.",
-                    text: error.message || "Unknown error occurred.",
-                    type: "error"
+                    description: error.message || "Unknown error occurred.",
+                    color: "error"
                 });
             })
             .finally(function () {
@@ -170,7 +170,7 @@ function downloadImage() {
 
 <template>
     <UButton
-        class="buttons text-white dark:text-whtie font-semibold text-lg lg:text-xl shadow-lg hover:shadow-2xl hover:drop-shadow-2xl transform transition duration-500 hover:scale-105"
+        class="buttons text-white font-semibold text-lg lg:text-xl shadow-lg hover:shadow-2xl hover:drop-shadow-2xl transform transition duration-500 hover:scale-105"
         variant="solid"
         :loading="isLoading"
         :disabled="isLoading"

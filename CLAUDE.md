@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-EC Prayer Times is a Nuxt 3 web app that calculates Islamic prayer (Salah) times for a given location and generates downloadable phone wallpapers containing prayer timetables.
+EC Prayer Times is a Nuxt 4 web app that calculates Islamic prayer (Salah) times for a given location and generates downloadable phone wallpapers containing prayer timetables.
 
 ## Commands
 
@@ -23,7 +23,17 @@ No test runner or linter is configured.
 
 ## Architecture
 
-**Framework:** Nuxt 3 with Vue 3 Composition API, Tailwind CSS, and @nuxt/ui components. Dark mode by default.
+**Framework:** Nuxt 4 with Vue 3 Composition API, Tailwind CSS v4, and @nuxt/ui v3 components. Dark mode only.
+
+**Styling / theme:** Tailwind v4 has no `tailwind.config.ts` — the `eman-channel` brand palette is declared as `@theme` variables in `assets/css/main.css`, and `app.config.ts` points `ui.colors.primary` at it. That makes `--ui-color-primary-*` (and therefore `bg-primary-500`, `accent-primary-500`, …) resolve to the brand red. Reference the palette directly as `var(--color-eman-channel-500)` in plain CSS.
+
+**@nuxt/ui v3 notes** (differs from the v2 API found in older code):
+- `UFormGroup` → `UFormField`; its `:ui` slots are flat (`{ label: '...' }`), not nested (`{ label: { base: '...' } }`)
+- Select/menu props: `:options` → `:items`, `value-attribute` → `value-key`, `option-attribute` → `label-key`. These size to content, so layout needs `class="w-full"`
+- `UToggle` → `USwitch`; `color="gray"` → `color="neutral"`
+- `URadio`'s slot-level `ui` overrides are gone — the segmented Asr/Calendar controls are plain buttons styled by `.pill-btn` in `PrayerTimesCalculationForm.vue`
+- Toasts replace `nuxt3-notifications`: `useToast().add({ title, description, color })` (`text` → `description`, `type: 'warn'` → `color: 'warning'`, `duration: -1` → `duration: 0`). `<UApp>` must wrap the tree in `app.vue` for toasts to render
+- Select-menu triggers expose `aria-haspopup="listbox"` rather than `role="combobox"`
 
 **Component hierarchy:**
 - `app.vue` — Root; handles Safari detection, notification system, responsive root container, footer
@@ -109,9 +119,8 @@ Safari requires special handling throughout the codebase:
 - `adhan` — Prayer time calculation engine (supports 12+ calculation methods, madhab, angles, high latitude rules, polar circle resolution, shafaq, rounding, adjustments)
 - `dom-to-image` / `html2canvas` — DOM-to-image conversion (primary / Safari fallback)
 - `hijrah-date` — Gregorian-to-Hijri date conversion; provides `getMonth()`, `getDate()`, `getFullYear()`, `getMonthLength()`, `plusMonths()`, `toGregorian()`
-- `moment` + `moment-timezone` — Date/time formatting and timezone handling
-- `nuxt-swiper` — Wallpaper selection carousel
-- `file-saver` — Client-side file download
+- `dayjs` — Date/time formatting. Import `~/utils/dayjs` (not bare `dayjs`) wherever the `utc`/`timezone` plugins are needed — `composables/adhantimes.js` relies on `.tz()`
+- `nuxt-swiper` v2 — Wallpaper selection carousel, via Swiper's `<swiper-container>` web components (`register()` + `initialize()`), not the old Vue wrappers
 
 ## Deployment
 

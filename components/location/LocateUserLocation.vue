@@ -1,6 +1,6 @@
 <script setup>
 import { fetchCoordsLocation, getCurrentLocationNames } from '../../composables/geocodingapi.js'
-const { notify } = useNotification();
+const toast = useToast();
 
 const emits = defineEmits(['updateUserLocation']);
 const latitude = ref(null);
@@ -24,20 +24,20 @@ function getCurrentLocation() {
                             console.log(results)
                         }
 
-                        notify({
+                        toast.add({
                             title: "Google Maps API Error.",
-                            text: errorMessage,
-                            type: "error"
+                            description: errorMessage,
+                            color: "error"
                         });
                         emitLocation()
                         return
                     }
                     const data = results.results[0]
                     if (!data) {
-                        notify({
+                        toast.add({
                             title: "Error, could not get location.",
-                            text: "An error occurred while trying to get your location. Please try again later",
-                            type: "error"
+                            description: "An error occurred while trying to get your location. Please try again later",
+                            color: "error"
                         });
                         emitLocation()
                         return
@@ -49,20 +49,20 @@ function getCurrentLocation() {
                 })
                 .catch((error) => {
                     console.log(error)
-                    notify({
+                    toast.add({
                         title: "Error, could not get location.",
-                        text: error?.message || "An error occurred while trying to get your location. Please try again later",
-                        type: "error"
+                        description: error?.message || "An error occurred while trying to get your location. Please try again later",
+                        color: "error"
                     });
                     emitLocation()
                 })
 
         },
             (error) => {
-                notify({
+                toast.add({
                     title: `Error getting location ${error.code}.`,
-                    text: error.message,
-                    type: "error"
+                    description: error.message,
+                    color: "error"
                 });
                 console.log(error)
                 emitLocation()
@@ -89,7 +89,7 @@ onMounted(() => {
 
 <template>
     <UButton @click="getCurrentLocation"
-        class="buttons font-semibold text-xl hover:shadow-lg ring-gray-300 dark:ring-gray-700 text-whtie dark:text-white"
+        class="buttons font-semibold text-xl hover:shadow-lg ring-gray-300 dark:ring-gray-700 text-white"
         variant="outline">
         Locate</UButton>
 </template>

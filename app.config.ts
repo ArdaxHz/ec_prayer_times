@@ -1,6 +1,9 @@
 export default defineAppConfig({
     ui: {
-        primary: 'eman-channel',
-        gray: 'cool'
+        colors: {
+            // v2's `gray: 'cool'` is Tailwind's `gray` ramp, which v3 calls `neutral`
+            primary: 'eman-channel',
+            neutral: 'gray'
+        }
     }
 })

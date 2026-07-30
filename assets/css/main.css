@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* Eman Channel brand palette — Tailwind v4 declares custom colours as theme
+   variables rather than through tailwind.config.ts. @nuxt/ui resolves
+   `primary: 'eman-channel'` (app.config.ts) against these. */
+@theme static {
+    --color-eman-channel-50: #FFBDC4;
+    --color-eman-channel-100: #FF94A4;
+    --color-eman-channel-200: #FF6B86;
+    --color-eman-channel-300: #FF426B;
+    --color-eman-channel-400: #f7184f;
+    --color-eman-channel-500: #d5073a;
+    --color-eman-channel-600: #c80725;
+    --color-eman-channel-700: #D10A43;
+    --color-eman-channel-800: #AB0036;
+    --color-eman-channel-900: #85002E;
+    --color-eman-channel-950: #5E0024;
+}

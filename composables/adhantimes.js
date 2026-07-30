@@ -1,4 +1,4 @@
-import moment from "moment-timezone";
+import dayjs from '~/utils/dayjs';
 import { Coordinates, CalculationMethod, PrayerTimes, HighLatitudeRule, Madhab, PolarCircleResolution, Shafaq, Rounding } from 'adhan';
 import HijrahDate from 'hijrah-date';
 
@@ -94,7 +94,7 @@ export function calculateAdhanTimesDay(latitude, longitude, date, customParams) 
 
     const prayerTimes = new PrayerTimes(coordinates, date, paramsToUse);
 
-    const formattedDate = moment(date).tz("Europe/London").format('YYYY-MM-DD');
+    const formattedDate = dayjs(date).tz("Europe/London").format('YYYY-MM-DD');
     const day = {}
     day[formattedDate] = { ...prayerTimes, 'hijri': convertToHijri(formattedDate, customParams['hijriConvention']) }
     return day;

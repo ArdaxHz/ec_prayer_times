@@ -1,5 +1,5 @@
 <script setup>
-import moment from "moment";
+import dayjs from 'dayjs';
 
 const templateChosen = ref({ preview: null, template: null, typeface: "WallpapersDesignsWhiteTextYellowTableDesign" });
 const wallpaperRef = ref(null);
@@ -33,8 +33,8 @@ const gregorianMonthRange = computed(() => {
     const keys = Object.keys(props.prayerTimes);
     if (keys.length === 0) return '';
 
-    const firstDate = moment(keys[0]);
-    const lastDate = moment(keys[keys.length - 1]);
+    const firstDate = dayjs(keys[0]);
+    const lastDate = dayjs(keys[keys.length - 1]);
 
     if (firstDate.format('MMM YYYY') === lastDate.format('MMM YYYY')) {
         return firstDate.format('MMM YYYY');
@@ -59,8 +59,8 @@ watch(() => props.location, (newValue, _) => {
 
 watch(() => props.gregorianDate, (newValue, _) => {
     if (newValue) {
-        gregorianMonth.value = moment(newValue).format('MMM')
-        gregorianYear.value = moment(newValue).format('YYYY')
+        gregorianMonth.value = dayjs(newValue).format('MMM')
+        gregorianYear.value = dayjs(newValue).format('YYYY')
     }
 });
 

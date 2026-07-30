@@ -1,5 +1,5 @@
 <script setup>
-import moment from "moment-timezone";
+import dayjs from 'dayjs';
 
 const props = defineProps({
     prayerTimes: Object,
@@ -84,8 +84,8 @@ const filteredPrayerTimes = computed(() => {
 });
 
 function isToday(day) {
-    const today = moment().format('YYYY-MM-DD');
-    return moment(day.date).format('YYYY-MM-DD') === today;
+    const today = dayjs().format('YYYY-MM-DD');
+    return dayjs(day.date).format('YYYY-MM-DD') === today;
 }
 
 function getRowStyle(day, index) {
@@ -128,14 +128,14 @@ const timeFormat = computed(() => opts.value.use24Hour ? 'HH:mm' : 'h:mm A');
 
 function getCellValue(day, colKey) {
     switch (colKey) {
-        case 'date': return ("0" + moment(day.date).format('D')).slice(-2);
+        case 'date': return ("0" + dayjs(day.date).format('D')).slice(-2);
         case 'hijri': return ("0" + day.hijri.date.getDate()).slice(-2);
-        case 'fajr': return moment(day.fajr).format(timeFormat.value);
-        case 'sunrise': return moment(day.sunrise).format(timeFormat.value);
-        case 'dhuhr': return moment(day.dhuhr).format(timeFormat.value);
-        case 'asr': return moment(day.asr).format(timeFormat.value);
-        case 'maghrib': return moment(day.maghrib).format(timeFormat.value);
-        case 'isha': return moment(day.isha).format(timeFormat.value);
+        case 'fajr': return dayjs(day.fajr).format(timeFormat.value);
+        case 'sunrise': return dayjs(day.sunrise).format(timeFormat.value);
+        case 'dhuhr': return dayjs(day.dhuhr).format(timeFormat.value);
+        case 'asr': return dayjs(day.asr).format(timeFormat.value);
+        case 'maghrib': return dayjs(day.maghrib).format(timeFormat.value);
+        case 'isha': return dayjs(day.isha).format(timeFormat.value);
         default: return '';
     }
 }
