@@ -1,6 +1,7 @@
 <script setup>
 import html2canvas from 'html2canvas';
 import domtoimage from 'dom-to-image';
+import { needsCanvasCapture } from '~/composables/browser';
 
 const toast = useToast();
 
@@ -16,6 +17,67 @@ const props = defineProps({
 
 const isLoading = ref(false);
 
+// iOS WebKit caps a canvas at 4096px per side and ~16.7M pixels in total. Going
+// over either limit does not throw — it hands back a blank canvas, which is how
+// a wallpaper download ends up as a plain white JPEG on an iPhone.
+const MAX_CANVAS_SIDE = 4096;
+const MAX_CANVAS_AREA = 16777216;
+
+const useCanvasCapture = computed(() => props.usingSafari || needsCanvasCapture());
+
+function captureScale(width, height) {
+    if (!width || !height) return 1;
+
+    const scale = Math.min(
+        window.devicePixelRatio || 1,
+        MAX_CANVAS_SIDE / Math.max(width, height),
+        Math.sqrt(MAX_CANVAS_AREA / (width * height))
+    );
+
+    return scale > 0 ? scale : 1;
+}
+
+// A canvas that blew past the WebKit limits reads back as a single flat colour.
+function isBlankCanvas(canvas) {
+    if (!canvas || !canvas.width || !canvas.height) return true;
+
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return false;
+
+    let reference = null;
+    for (let row = 1; row < 16; row++) {
+        for (let col = 1; col < 8; col++) {
+            const x = Math.floor((canvas.width * col) / 8);
+            const y = Math.floor((canvas.height * row) / 16);
+            const [r, g, b, a] = ctx.getImageData(x, y, 1, 1).data;
+            const pixel = `${r},${g},${b},${a}`;
+
+            if (reference === null) reference = pixel;
+            else if (pixel !== reference) return false;
+        }
+    }
+
+    return true;
+}
+
+function renderCanvas(node, scale) {
+    return html2canvas(node, {
+        scale,
+        useCORS: true,
+        imageTimeout: 0,
+        logging: false,
+        backgroundColor: '#000000',
+        // Safari cannot rasterise the foreignObject html2canvas builds for this.
+        foreignObjectRendering: false,
+    });
+}
+
+function toJpegBlob(canvas) {
+    return new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.95));
+}
+
+// Stamps provenance into the JPEG's COM segment so a saved wallpaper records
+// where it came from.
 function embedJpegMetadata(blob) {
     const comment = [
         `Source: ${window.location.origin}`,
@@ -67,8 +129,48 @@ function triggerDownload(url, isObjectURL) {
     }
 }
 
-function downloadImage() {
-    if (!props.wallpaperRef || !props.wallpaperRef.value) {
+async function downloadTaggedBlob(blob) {
+    const tagged = await embedJpegMetadata(blob);
+    triggerDownload(URL.createObjectURL(tagged), true);
+}
+
+async function captureWithHtml2Canvas(node) {
+    const { width, height } = node.getBoundingClientRect();
+
+    let canvas = await renderCanvas(node, captureScale(width, height));
+    if (isBlankCanvas(canvas)) {
+        canvas = await renderCanvas(node, 1);
+    }
+    if (isBlankCanvas(canvas)) {
+        throw new Error('The wallpaper rendered blank on this device.');
+    }
+
+    const blob = await toJpegBlob(canvas);
+    if (!blob) {
+        throw new Error('The image could not be encoded.');
+    }
+
+    await downloadTaggedBlob(blob);
+}
+
+async function captureWithDomToImage(node) {
+    const dataUrl = await domtoimage.toJpeg(node, {
+        quality: 0.95,
+        style: {
+            transformOrigin: 'top left',
+            alignItems: 'start',
+            justifyContent: 'start',
+        },
+    });
+
+    const blob = await fetch(dataUrl).then((r) => r.blob());
+    await downloadTaggedBlob(blob);
+}
+
+async function downloadImage() {
+    const node = props.wallpaperRef && props.wallpaperRef.value;
+
+    if (!node) {
         toast.add({
             title: "Wallpaper not ready.",
             description: "Please wait for the wallpaper to load before downloading.",
@@ -79,91 +181,47 @@ function downloadImage() {
 
     isLoading.value = true;
 
-    const el = props.wallpaperRef.value;
-    const width = el.offsetWidth;
-    const height = el.offsetHeight;
-
-    const config = {
-        style: {
-            transformOrigin: 'top left',
-            alignItems: 'start',
-            justifyContent: 'start',
-        },
-        width,
-        height,
-        imageTimeout: 0,
-        foreignObjectRendering: true
-    };
-
-    // Save reference to today element before removing class
-    const todayElements = el.getElementsByClassName('today');
+    // Today's row is highlighted by a CSS class, so dropping the class keeps the
+    // highlight out of the saved image; it goes back on in the finally block.
+    const todayElements = node.getElementsByClassName('today');
     const todayElement = todayElements.length > 0 ? todayElements[0] : null;
-
     if (todayElement) {
         todayElement.classList.remove('today');
     }
 
-    if (props.usingSafari) {
-        // Safari/iOS path: use html2canvas
-        html2canvas(el, { ...config, scale: 2 })
-            .then(function (canvas) {
-                canvas.toBlob(function (blob) {
-                    if (!blob) {
-                        console.error('Canvas is empty.');
-                        toast.add({
-                            title: "Download failed.",
-                            description: "The image could not be rendered. Please try again.",
-                            color: "error"
-                        });
-                        return;
-                    }
-                    embedJpegMetadata(blob).then(function (tagged) {
-                        const url = URL.createObjectURL(tagged);
-                        triggerDownload(url, true);
-                    });
-                }, 'image/jpeg', 0.95);
-            })
-            .catch(function (error) {
-                console.error('html2canvas error:', error);
-                toast.add({
-                    title: "Error downloading image.",
-                    description: error.message || "Unknown error occurred.",
-                    color: "error"
-                });
-            })
-            .finally(function () {
-                if (todayElement) {
-                    todayElement.classList.add('today');
-                }
-                isLoading.value = false;
-            });
-    } else {
-        // Non-Safari path: use dom-to-image
-        domtoimage.toJpeg(el, config)
-            .then(function (dataUrl) {
-                return fetch(dataUrl).then(r => r.blob());
-            })
-            .then(function (blob) {
-                return embedJpegMetadata(blob);
-            })
-            .then(function (tagged) {
-                const url = URL.createObjectURL(tagged);
-                triggerDownload(url, true);
-            })
-            .catch(function (error) {
-                console.error('dom-to-image error:', error);
-                toast.add({
-                    title: "Error downloading image.",
-                    description: error.message || "Unknown error occurred.",
-                    color: "error"
-                });
-            })
-            .finally(function () {
-                if (todayElement) {
-                    todayElement.classList.add('today');
-                }
-                isLoading.value = false;
-            });
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+
+    try {
+        if (document.fonts && document.fonts.ready) {
+            await document.fonts.ready;
+        }
+
+        if (useCanvasCapture.value) {
+            // The wallpaper lives in a position: fixed container, so html2canvas
+            // crops an empty region of the page whenever it is captured while
+            // scrolled down — which is always the case on a phone.
+            window.scrollTo(0, 0);
+            await nextTick();
+            await new Promise((resolve) => requestAnimationFrame(resolve));
+
+            await captureWithHtml2Canvas(node);
+        } else {
+            await captureWithDomToImage(node);
+        }
+    } catch (error) {
+        console.error('Wallpaper capture error:', error);
+        toast.add({
+            title: "Error downloading image.",
+            description: error.message || "Unknown error occurred.",
+            color: "error"
+        });
+    } finally {
+        window.scrollTo(scrollX, scrollY);
+        if (todayElement) {
+            todayElement.classList.add('today');
+        }
+        isLoading.value = false;
     }
 }
 </script>

@@ -1,23 +1,12 @@
 <script setup>
+import { isSafariBrowser } from '~/composables/browser';
+
 const rootContainer = ref(null);
 const windowWidth = ref(0);
 const windowHeight = ref(0);
 const usingSafari = ref(false);
 
 const toast = useToast();
-
-const isSafari = () => {
-  const ua = navigator.userAgent.toLowerCase();
-  const iOS = !!ua.match(/iP(ad|od|hone)/i);
-
-  // All iOS browsers use WebKit engine, so always use html2canvas on iOS
-  if (iOS) return true;
-
-  const webkit = !!ua.match(/WebKit/i);
-  const notSafariDesktop = ua.match(/(?:chrome|firefox|opera|brave)/i);
-
-  return webkit && !notSafariDesktop;
-};
 
 useResizeObserver(rootContainer, (entries) => {
   const entry = entries[0];
@@ -33,17 +22,10 @@ onMounted(() => {
     duration: 5000
   });
 
-  if (isSafari()) {
+  // No Safari warning toast: DownloadWallpaper now captures correctly on
+  // WebKit, so the "downloads may be blank" caveat no longer applies.
+  if (isSafariBrowser()) {
     usingSafari.value = true;
-    console.log("Using Safari.")
-
-    toast.add({
-      title: "Safari detected, image downloading may not work.",
-      description: "Image downloading does not work correctly on Safari, please use a different browser if the image downloaded is blank.",
-      color: "warning",
-      // 0 keeps the toast up until dismissed
-      duration: 0
-    });
   }
 });
 
