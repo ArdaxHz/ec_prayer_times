@@ -126,7 +126,9 @@ Safari/WebKit requires special handling throughout the codebase:
 
 ## Deployment
 
-Docker-based: Node 20.14 Alpine image, builds the app and serves `.output/server/index.mjs` on port 3000 (mapped to 5164 in docker-compose).
+Docker-based: Node 22.16 Alpine image, builds the app and serves `.output/server/index.mjs` on port 3000 (mapped to 5164 in docker-compose). Also deployed via Cloudflare, which picks its Node version from `.nvmrc`.
+
+**Node version is load-bearing.** Nuxt 4 requires `^20.19.0 || >=22.12.0`, declared in `package.json` `engines`. On an older Node the failure is confusing rather than obvious: `oxc-parser`'s platform binding (e.g. `@oxc-parser/binding-linux-x64-gnu`) is an *optional* dependency gated on that same engine range, so npm silently skips installing it, and the `postinstall` `nuxt prepare` then dies with "Cannot find native binding" — whose error text misleadingly blames an npm optional-dependency bug. Verified on Node 18.17.1: no `@oxc-parser/binding-*` is installed at all. Keep `.nvmrc`, the `Dockerfile` base image, and `engines` in sync.
 
 ## License
 
