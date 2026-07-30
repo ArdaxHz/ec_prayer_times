@@ -36,14 +36,14 @@ No test runner or linter is configured.
 - Select-menu triggers expose `aria-haspopup="listbox"` rather than `role="combobox"`
 
 **Component hierarchy:**
-- `app.vue` — Root; handles Safari detection, notification system, responsive root container, footer
+- `app.vue` — Root; wraps the tree in `<UApp>` (required for toasts), sets `usingSafari` from `composables/browser.js`, responsive root container, footer
 - `HomePage.vue` — Central state manager; orchestrates all child components via props/emits; holds `wallpaperOptions` state
 - `WallpaperOutput.vue` — Full-size wallpaper renderer (950x2048px, hidden off-screen); computes gregorian month range; uses `justify-content: flex-end` for bottom 2/3 positioning
 - `WallpaperPreview.vue` — Live preview inside an iPhone mockup; passes wallpaperOptions through
 - `wallpapers/WallpaperOptions.vue` — Collapsible wallpaper customization panel (fonts, colors, table style, highlights, columns, day range)
 - `wallpapers/designs/WhiteTextYellowTableDesign.vue` — Wallpaper design template; uses flexbox positioning with `max-height: 1365px` (2/3 of 2048px); accepts wallpaperOptions prop; dynamic colors, blur, fonts
 - `wallpapers/WallpaperPrayerTimetable.vue` — Prayer times table; accepts wallpaperOptions prop; column filtering, day range filtering, row highlights, dynamic colors/fonts
-- `DownloadWallpaper.vue` — Converts DOM to image with proper if/else branching for Safari (html2canvas) vs non-Safari (dom-to-image); includes loading state and today class restore
+- `DownloadWallpaper.vue` — Converts DOM to image, branching between html2canvas (WebKit) and dom-to-image (everything else); handles WebKit canvas limits and blank-canvas retries, embeds JPEG metadata on both paths, loading state, and today-class restore
 
 **State management:** No Vuex/Pinia. All state lives in `HomePage.vue` and flows down via props, back up via emits.
 
@@ -100,10 +100,12 @@ Key properties:
 
 ## Browser Compatibility
 
-Safari requires special handling throughout the codebase:
-- **Image capture:** dom-to-image fails on Safari; falls back to html2canvas (proper if/else branching, not both running)
+Safari/WebKit requires special handling throughout the codebase:
+- **Detection** lives in `composables/browser.js` — `isSafariBrowser()`, `isIOSDevice()` (which also catches iPadOS reporting itself as a desktop Mac) and `needsCanvasCapture()`. Every iOS browser is WebKit underneath, so they all take the html2canvas path regardless of brand
+- **Image capture:** dom-to-image rasterises via an SVG `foreignObject` that WebKit refuses to paint, so WebKit falls back to html2canvas (one path or the other, never both)
+- **Canvas limits:** iOS WebKit caps a canvas at 4096px per side and ~16.7M pixels total, and silently returns a *blank* canvas past either limit — the cause of blank wallpaper downloads on iPhone. `DownloadWallpaper.vue` scales the capture to stay inside both limits, samples the result via `isBlankCanvas()`, retries once at scale 1, and only then errors
+- **Fixed positioning:** the wallpaper sits in a `position: fixed` container, so html2canvas captures an empty region if the page is scrolled. The capture scrolls to the top first and restores the scroll position afterwards
 - **Download behavior:** Firefox opens downloads in a new tab (`_blank`)
-- Safari detection is done via user-agent string in `app.vue`; every iOS browser is WebKit under the hood, so any iOS UA takes the html2canvas path regardless of the browser brand
 - **Today highlight:** the today row is styled by the `.today` CSS class (fed by a `--today-color` custom property), not an inline style, so `DownloadWallpaper.vue` can strip the class before capture and restore it afterwards
 
 ## Responsive Design
