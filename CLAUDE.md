@@ -105,7 +105,9 @@ Safari/WebKit requires special handling throughout the codebase:
 - **Image capture:** dom-to-image rasterises via an SVG `foreignObject` that WebKit refuses to paint, so WebKit falls back to html2canvas (one path or the other, never both)
 - **Canvas limits:** iOS WebKit caps a canvas at 4096px per side and ~16.7M pixels total, and silently returns a *blank* canvas past either limit — the cause of blank wallpaper downloads on iPhone. `DownloadWallpaper.vue` scales the capture to stay inside both limits, samples the result via `isBlankCanvas()`, retries once at scale 1, and only then errors
 - **Fixed positioning:** the wallpaper sits in a `position: fixed` container, so html2canvas captures an empty region if the page is scrolled. The capture scrolls to the top first and restores the scroll position afterwards
-- **Download behavior:** Firefox opens downloads in a new tab (`_blank`)
+- **Nothing in the capture path may await unbounded.** `DownloadWallpaper.vue` wraps every step in `withTimeout()`, because a stalled step leaves the button spinning forever with no way out. In particular html2canvas treats `imageTimeout: 0` as *wait forever* (it must stay a finite value), and iOS WebKit sometimes never invokes the `canvas.toBlob` callback on a large canvas — hence the `toDataURL` fallback
+- **Capture scale never exceeds 1 on iOS.** The wallpaper is authored at full resolution, so upscaling by `devicePixelRatio` only multiplies canvas memory on the one platform that runs out of it
+- **Download behavior:** Firefox opens downloads in a new tab (`_blank`). On iOS the finished image is handed to the Web Share API (`navigator.share` with a `File`), which is what lands it in Photos — `<a download>` at best puts it in Files. Delivery happens *after* `isLoading` is cleared, since the share sheet can stay open indefinitely and must never gate the spinner
 - **Today highlight:** the today row is styled by the `.today` CSS class (fed by a `--today-color` custom property), not an inline style, so `DownloadWallpaper.vue` can strip the class before capture and restore it afterwards
 
 ## Responsive Design
